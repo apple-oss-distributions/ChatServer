@@ -1,8 +1,6 @@
 #
 # Ok this is taken from an automaked file and tweaked out
 #
-# Portions (c) Copyright 2005 Apple Computer, Inc.
-#
 include ../../platform-settings
 
 CFLAGS:=$(CFLAGS)

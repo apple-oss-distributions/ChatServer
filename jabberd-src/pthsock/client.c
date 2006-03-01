@@ -370,13 +370,13 @@ void pthsock_client_read(mio m, int flag, void *arg, xmlnode x)
         if(cd->aliased)
         {
             jid j = jid_new(xmlnode_pool(x), xmlnode_get_attrib(x, "to"));
-            if(j != NULL && j_strcmp(j->server, cd->sending_id->server) == 0)
+            if(j != NULL && j_strcmp(j->server, cd->session_id->server) == 0)
             {
                 jid_set(j, cd->session_id->server, JID_SERVER);
                 xmlnode_put_attrib(x, "to", jid_full(j));
             }
             j = jid_new(xmlnode_pool(x), xmlnode_get_attrib(x, "from"));
-            if(j != NULL && j_strcmp(j->server, cd->sending_id->server) == 0)
+            if(j != NULL && j_strcmp(j->server, cd->session_id->server) == 0)
             {
                 jid_set(j, cd->session_id->server, JID_SERVER);
                 xmlnode_put_attrib(x, "from", jid_full(j));

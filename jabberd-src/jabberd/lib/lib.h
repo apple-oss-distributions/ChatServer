@@ -1,7 +1,3 @@
-/*
-* Portions (c) Copyright 2005 Apple Computer, Inc.
-*/
-
 #include <string.h>
 #include <stdlib.h>
 #include <sys/types.h>

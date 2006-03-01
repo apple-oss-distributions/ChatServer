@@ -421,14 +421,14 @@ int sValidateResponse ( const char *inUserID, const char *inChallenge, const cha
 				else
 				{
 				    if (logErrors)
-					    syslog( LOG_ERR, "cram_md5_auth: Unable to open user directory node for user %s. (Open Directroy error: %d)", inUserID, dsStatus );
+					    syslog( LOG_ERR, "cram_md5_auth: Unable to open user directory node for user %s. (Open Directory error: %d)", inUserID, dsStatus );
 					iResult = dsStatus;
 				}
 			}
 			else
 			{
 				if (logErrors)
-				    syslog( LOG_ERR, "cram_md5_auth: Unable to find user %s. (Open Directroy error: %d)", inUserID, dsStatus );
+				    syslog( LOG_ERR, "cram_md5_auth: Unable to find user %s. (Open Directory error: %d)", inUserID, dsStatus );
 				iResult = dsStatus;
 			}
 			(void)dsCloseDirNode( searchNodeRef );
@@ -437,7 +437,7 @@ int sValidateResponse ( const char *inUserID, const char *inChallenge, const cha
 		else
 		{
 			if (logErrors)
-			    syslog( dsStatus, "cram_md5_auth: Unable to open directroy search node. (Open Directroy error: %d)", dsStatus );
+			    syslog( dsStatus, "cram_md5_auth: Unable to open directroy search node. (Open Directory error: %d)", dsStatus );
 			iResult = dsStatus;
 		}
 		(void)dsCloseDirService( dirRef );
@@ -446,7 +446,7 @@ int sValidateResponse ( const char *inUserID, const char *inChallenge, const cha
 	else
 	{
 		if (logErrors)
-		    syslog( LOG_ERR, "cram_md5_auth: Unable to open directroy. (Open Directroy error: %d)", dsStatus );
+		    syslog( LOG_ERR, "cram_md5_auth: Unable to open directroy. (Open Directory error: %d)", dsStatus );
 		iResult = dsStatus;
 	}
 

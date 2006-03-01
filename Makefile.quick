@@ -322,6 +322,10 @@ do_install:
 	mkdir -p $(JABBER_MAN_PAGE_DIR)
 	cp -f "$(SRCROOT)"/manpage/jabberd.8 "$(JABBER_MAN_PAGE_DIR)"
    
+	# copy the jabber Setup Profiler
+	cp -f "$(SRCROOT)"/jabberSetup/jabberProfile.pl "$(DSTROOT)$(SETUPDIR)"/jabberProfile.pl
+	chmod $(SERVER_SETUP_EXEC) "$(DSTROOT)$(SETUPDIR)"/jabberProfile.pl
+
 	# copy the open source support files
 	$(MKDIRS) "$(DSTROOT)/usr/local/OpenSourceVersions"
 	cp -p "$(SRCROOT)/ChatServer.plist" "$(DSTROOT)/usr/local/OpenSourceVersions"
@@ -346,6 +350,8 @@ do_install:
 	cd $(SRCROOT)/libraries/Twisted-1.3.0   && python setup.py bdist_dumb
 	cd $(SRCROOT)/modules/filetransfer/proxy65 && python setup.py bdist_dumb
 	cd $(SRCROOT)/jabberd-src && make LDFLAGS="$(LDFLAGS) -L$(BUILDROOT)/usr/local/lib"
+
+	cd $(SRCROOT)/jabberSetup && xcodebuild -project jabberSetup.xcode install SRCROOT=$(SRCROOT)/jabberSetup DSTROOT=$(DSTROOT)
 
 	cd $(SRCROOT)/libraries/Twisted-1.3.0/dist/ && cp Twisted*.tar.gz $(DSTROOT)/Twisted-1.3.0.tar.gz
 	gunzip $(DSTROOT)/Twisted-1.3.0.tar.gz 
@@ -408,6 +414,7 @@ do_clean:
 	rm -rf ./libraries/Twisted-1.3.0/dist
 	rm -rf ./modules/filetransfer/proxy65/build
 	rm -rf ./modules/filetransfer/proxy65/dist
+	rm -rf ./jabberSetup/build
 
 	rm -rf ./build
 
@@ -513,6 +520,7 @@ do_clean_installed_source:
 
 ##	cd $(SRCROOT)/libraries/pyOpenSSL-0.5.1 && python setup.py clean
 	cd $(SRCROOT)/libraries/Twisted-1.3.0   && python setup.py clean
+	cd $(SRCROOT)/jabberSetup && xcodebuild -project jabberSetup.xcode clean
 	cd $(SRCROOT)/modules/filetransfer/proxy65 && python setup.py clean
 	rm -rf $(SRCROOT)/libraries/pyOpenSSL-0.5.1/build
 	rm -rf $(SRCROOT)/libraries/pyOpenSSL-0.5.1/dist
@@ -520,6 +528,7 @@ do_clean_installed_source:
 	rm -rf $(SRCROOT)/libraries/Twisted-1.3.0/dist
 	rm -rf $(SRCROOT)/modules/filetransfer/proxy65/build
 	rm -rf $(SRCROOT)/modules/filetransfer/proxy65/dist
+	rm -rf $(SRCROOT)/jabberSetup/build
 	rm -rf $(SRCROOT)/build
 
 	rm -f $(SRCROOT)/libraries/pkgconfig-0.15.0/glib-1.2.8/glibconfig-sysdefs.h
@@ -604,3 +613,4 @@ do_copy_obj_files:
 	cd $(SRCROOT)/jabberd-src/ && find * -name \*.o -exec mkdir -p $(OBJROOT)/{} \; -exec rmdir $(OBJROOT)/{} \; -exec mv {} $(OBJROOT)/{} \;
 	cd $(SRCROOT)/libraries/ && find * -name \*.o -exec mkdir -p $(OBJROOT)/{} \; -exec rmdir $(OBJROOT)/{} \; -exec mv {} $(OBJROOT)/{} \;
 	cd $(SRCROOT)/modules/ && find * -name \*.o -exec mkdir -p $(OBJROOT)/{} \; -exec rmdir $(OBJROOT)/{} \; -exec mv {} $(OBJROOT)/{} \;
+	cd $(SRCROOT)/jabberSetup/ && find * -name \*.o -exec mkdir -p $(OBJROOT)/{} \; -exec rmdir $(OBJROOT)/{} \; -exec mv {} $(OBJROOT)/{} \;

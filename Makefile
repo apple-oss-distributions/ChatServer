@@ -24,7 +24,7 @@ override SRCROOT=$(OBJROOT)
 override BUILDROOT=$(OBJROOT)/build
 GNUTAR=gnutar
 CONFIG_OPTS=--enable-ssl
-CFLAGS=$(RC_CFLAGS) -I$(BUILDROOT)/usr/local/include
+CFLAGS=$(RC_CFLAGS) -I$(BUILDROOT)/usr/local/include -Os
 #LDFLAGS += -L$(BUILDROOT)/usr/local/lib
 CHOWN=chown
 CONFIG_FILE=jabber.xml
@@ -186,12 +186,20 @@ do_configure:
 		ditto . $(OBJROOT) ; \
 	fi
 
-	cp -f $(SRCROOT)/libraries/gettext-0.13/autoconf-lib-link/xconfigure $(SRCROOT)/libraries/gettext-0.13/autoconf-lib-link/configure
-	cp -f $(SRCROOT)/libraries/gettext-0.13/gettext-tools/xconfigure $(SRCROOT)/libraries/gettext-0.13/gettext-tools/configure
-	cp -f $(SRCROOT)/libraries/gettext-0.13/gettext-runtime/xconfigure $(SRCROOT)/libraries/gettext-0.13/gettext-runtime/configure
-	cp -f $(SRCROOT)/libraries/gettext-0.13/gettext-runtime/libasprintf/xconfigure $(SRCROOT)/libraries/gettext-0.13/gettext-runtime/libasprintf/configure
-	cp -f $(SRCROOT)/libraries/gettext-0.13/gettext-runtime/libasprintf/xconfig.h.in $(SRCROOT)/libraries/gettext-0.13/gettext-runtime/libasprintf/config.h.in
-	cp -f $(SRCROOT)/libraries/gettext-0.13/gettext-tools/xconfig.h.in $(SRCROOT)/libraries/gettext-0.13/gettext-tools/config.h.in
+	cp -f $(SRCROOT)/libraries/gettext-0.13_ppc/autoconf-lib-link/xconfigure $(SRCROOT)/libraries/gettext-0.13_ppc/autoconf-lib-link/configure
+	cp -f $(SRCROOT)/libraries/gettext-0.13_ppc/gettext-tools/xconfigure $(SRCROOT)/libraries/gettext-0.13_ppc/gettext-tools/configure
+	cp -f $(SRCROOT)/libraries/gettext-0.13_ppc/gettext-runtime/xconfigure $(SRCROOT)/libraries/gettext-0.13_ppc/gettext-runtime/configure
+	cp -f $(SRCROOT)/libraries/gettext-0.13_ppc/gettext-runtime/libasprintf/xconfigure $(SRCROOT)/libraries/gettext-0.13_ppc/gettext-runtime/libasprintf/configure
+	cp -f $(SRCROOT)/libraries/gettext-0.13_ppc/gettext-runtime/libasprintf/xconfig.h.in $(SRCROOT)/libraries/gettext-0.13_ppc/gettext-runtime/libasprintf/config.h.in
+	cp -f $(SRCROOT)/libraries/gettext-0.13_ppc/gettext-tools/xconfig.h.in $(SRCROOT)/libraries/gettext-0.13_ppc/gettext-tools/config.h.in
+
+	cp -f $(SRCROOT)/libraries/gettext-0.13_i386/autoconf-lib-link/xconfigure $(SRCROOT)/libraries/gettext-0.13_i386/autoconf-lib-link/configure
+	cp -f $(SRCROOT)/libraries/gettext-0.13_i386/gettext-tools/xconfigure $(SRCROOT)/libraries/gettext-0.13_i386/gettext-tools/configure
+	cp -f $(SRCROOT)/libraries/gettext-0.13_i386/gettext-runtime/xconfigure $(SRCROOT)/libraries/gettext-0.13_i386/gettext-runtime/configure
+	cp -f $(SRCROOT)/libraries/gettext-0.13_i386/gettext-runtime/libasprintf/xconfigure $(SRCROOT)/libraries/gettext-0.13_i386/gettext-runtime/libasprintf/configure
+	cp -f $(SRCROOT)/libraries/gettext-0.13_i386/gettext-runtime/libasprintf/xconfig.h.in $(SRCROOT)/libraries/gettext-0.13_i386/gettext-runtime/libasprintf/config.h.in
+	cp -f $(SRCROOT)/libraries/gettext-0.13_i386/gettext-tools/xconfig.h.in $(SRCROOT)/libraries/gettext-0.13_i386/gettext-tools/config.h.in
+
 
 	if test -f $(CC_PRINT_OPTIONS_FILE) ; then \
 		echo "found $(CC_PRINT_OPTIONS_FILE)" ;  \
@@ -208,9 +216,13 @@ do_configure:
 		mkdir -p "/tmp" ; \
 	fi ; 
 
+	$(MKDIRS) "$(BUILDROOT)/usr/local/lib/i386"
+	$(MKDIRS) "$(BUILDROOT)/usr/local/bin/i386"
+
 	cd $(SRCROOT)/libraries/pkgconfig-0.15.0 && ./configure  --prefix=$(BUILDROOT)/usr/local --exec-prefix=$(BUILDROOT)/usr/local --libdir=$(BUILDROOT)/usr/local/lib --includedir=$(BUILDROOT)/usr/local/include --enable-static
 	cd $(SRCROOT)/libraries/expat-1.95.8 && ./configure  --prefix=$(BUILDROOT)/usr/local --exec-prefix=$(BUILDROOT)/usr/local --libdir=$(BUILDROOT)/usr/local/lib --includedir=$(BUILDROOT)/usr/local/include --enable-static=yes --enable-shared=no
-	cd $(SRCROOT)/libraries/gettext-0.13 && env DESTDIR=$(BUILDROOT) ./configure   --prefix=$(BUILDROOT)/usr/local --exec-prefix=$(BUILDROOT)/usr/local --libdir=$(BUILDROOT)/usr/local/lib --includedir=$(BUILDROOT)/usr/local/include --enable-static 
+	cd $(SRCROOT)/libraries/gettext-0.13_ppc && env DESTDIR=$(BUILDROOT) ./configure --target=ppc --prefix=$(BUILDROOT)/usr/local --exec-prefix=$(BUILDROOT)/usr/local --libdir=$(BUILDROOT)/usr/local/lib --includedir=$(BUILDROOT)/usr/local/include --enable-static 
+	cd $(SRCROOT)/libraries/gettext-0.13_i386 && env DESTDIR=$(BUILDROOT) ./configure --target=i386 --prefix=$(BUILDROOT)/usr/local --exec-prefix=$(BUILDROOT)/usr/local --bindir=$(BUILDROOT)/usr/local/bin/i386 --libdir=$(BUILDROOT)/usr/local/lib/i386 --includedir=$(BUILDROOT)/usr/local/include --enable-static 
 	cd $(SRCROOT)/jabberd-src && LDFLAGS="$(LDFLAGS) -L$(BUILDROOT)/usr/local/lib" ./configure $(CONFIG_OPTS) "$(CFLAGS)"
 ##	cd $(SRCROOT)/libraries/pyOpenSSL-0.5.1 && python setup.py build
 
@@ -342,6 +354,10 @@ do_install:
 	mkdir -p $(JABBER_MAN_PAGE_DIR)
 	cp -f "$(SRCROOT)"/manpage/jabberd.8 "$(JABBER_MAN_PAGE_DIR)"
    
+	# copy the jabber Setup Profiler
+	cp -f "$(SRCROOT)"/jabberSetup/jabberProfile.pl "$(DSTROOT)$(SETUPDIR)"/jabberProfile.pl
+	chmod $(SERVER_SETUP_EXEC) "$(DSTROOT)$(SETUPDIR)"/jabberProfile.pl
+
 	# copy the open source support files
 	$(MKDIRS) "$(DSTROOT)/usr/local/OpenSourceVersions"
 	cp "$(SRCROOT)/ChatServer.plist" "$(DSTROOT)/usr/local/OpenSourceVersions"
@@ -354,18 +370,65 @@ do_install:
 	cd $(SRCROOT)/libraries/expat-1.95.8 && make
 	cd $(SRCROOT)/libraries/expat-1.95.8 && make install
 
-	cd $(SRCROOT)/libraries/gettext-0.13 && make
-	cd $(SRCROOT)/libraries/gettext-0.13 && make install
+	cd $(SRCROOT)/libraries/gettext-0.13_ppc && make
+	cd $(SRCROOT)/libraries/gettext-0.13_ppc && make install
 
-	cd $(SRCROOT)/libraries/glib-2.4.5 && env CFLAGS="-arch ppc -pipe" CPPFLAGS=-I$(BUILDROOT)/usr/local/include LDFLAGS="-L$(BUILDROOT)/usr/local/lib" ./configure --libdir=$(BUILDROOT)/usr/local/lib --prefix=$(BUILDROOT) --exec-prefix=$(BUILDROOT) --includedir=$(BUILDROOT)/usr/local/include --enable-static --disable-shared 	
-	cd $(SRCROOT)/libraries/glib-2.4.5 && env  CFLAGS="-arch ppc -arch=i386 -pipe" DESTDIR="" LDFLAGS="-L$(BUILDROOT)/usr/local/lib" make
-	cd $(SRCROOT)/libraries/glib-2.4.5 && make install
+	cd $(SRCROOT)/libraries/gettext-0.13_i386 && make
+	cd $(SRCROOT)/libraries/gettext-0.13_i386 && make install
+
+	# create fat gettext dylibs
+	cd $(BUILDROOT)/usr/local/lib && lipo -create -arch ppc libasprintf.0.0.0.dylib -arch i386 i386/libasprintf.0.0.0.dylib -output libasprintf.0.0.0.dylib.tmp
+	cd $(BUILDROOT)/usr/local/lib &&  rm libasprintf.0.0.0.dylib
+	cd $(BUILDROOT)/usr/local/lib && mv -f libasprintf.0.0.0.dylib.tmp libasprintf.0.0.0.dylib
+
+	cd $(BUILDROOT)/usr/local/lib && lipo -create -arch ppc libgettextlib-0.13.dylib -arch i386 i386/libgettextlib-0.13.dylib -output libgettextlib-0.13.dylib.tmp
+	cd $(BUILDROOT)/usr/local/lib && rm libgettextlib-0.13.dylib
+	cd $(BUILDROOT)/usr/local/lib && mv -f libgettextlib-0.13.dylib.tmp libgettextlib-0.13.dylib
+
+	cd $(BUILDROOT)/usr/local/lib && lipo -create -arch ppc libgettextpo.0.1.0.dylib -arch i386 i386/libgettextpo.0.1.0.dylib -output libgettextpo.0.1.0.dylib.tmp
+	cd $(BUILDROOT)/usr/local/lib && rm libgettextpo.0.1.0.dylib
+	cd $(BUILDROOT)/usr/local/lib && mv -f libgettextpo.0.1.0.dylib.tmp libgettextpo.0.1.0.dylib
+
+	cd $(BUILDROOT)/usr/local/lib && lipo -create -arch ppc libgettextsrc-0.13.dylib -arch i386 i386/libgettextsrc-0.13.dylib -output libgettextsrc-0.13.dylib.tmp
+	cd $(BUILDROOT)/usr/local/lib && rm libgettextsrc-0.13.dylib
+	cd $(BUILDROOT)/usr/local/lib && mv -f libgettextsrc-0.13.dylib.tmp libgettextsrc-0.13.dylib
+	
+	cd $(BUILDROOT)/usr/local/lib && lipo -create -arch ppc libintl.2.4.0.dylib -arch i386 i386/libintl.2.4.0.dylib -output libintl.2.4.0.dylib.tmp
+	cd $(BUILDROOT)/usr/local/lib && rm libintl.2.4.0.dylib
+	cd $(BUILDROOT)/usr/local/lib && mv -f libintl.2.4.0.dylib.tmp libintl.2.4.0.dylib
+
+	cd $(SRCROOT)/libraries/glib-2.4.5_ppc && env CFLAGS="-Os -arch ppc -pipe" CPPFLAGS=-I$(BUILDROOT)/usr/local/include LDFLAGS="-L$(BUILDROOT)/usr/local/lib" ./configure --host=ppc --libdir=$(BUILDROOT)/usr/local/lib --prefix=$(BUILDROOT) --exec-prefix=$(BUILDROOT) --includedir=$(BUILDROOT)/usr/local/include --enable-static --disable-shared 
+	cd $(SRCROOT)/libraries/glib-2.4.5_ppc && env CFLAGS="-Os -arch ppc -arch=i386 -pipe" DESTDIR="" LDFLAGS="-L$(BUILDROOT)/usr/local/lib" make
+	cd $(SRCROOT)/libraries/glib-2.4.5_ppc && make install
+
+	cd $(SRCROOT)/libraries/glib-2.4.5_i386 && env CFLAGS="-Os -arch i386 -pipe" CPPFLAGS=-I$(BUILDROOT)/usr/local/include LDFLAGS="-L$(BUILDROOT)/usr/local/lib" PATH="$(BUILDROOT)/bin:$(PATH)" ./configure --host=i386 --bindir=$(BUILDROOT)/usr/local/bin/i386 --libdir=$(BUILDROOT)/usr/local/lib/i386 --prefix=$(BUILDROOT) --exec-prefix=$(BUILDROOT) --includedir=$(BUILDROOT)/usr/local/include --enable-static --disable-shared --cache-file=i386.cache
+	cd $(SRCROOT)/libraries/glib-2.4.5_i386 && env CFLAGS="-Os -arch i386 -pipe" DESTDIR="" LDFLAGS="-L$(BUILDROOT)/usr/local/lib" PATH="$(BUILDROOT)/bin:$(PATH)" make
+	cd $(SRCROOT)/libraries/glib-2.4.5_i386 && make install
+
+	# create fat glib archives
+	cd $(BUILDROOT)/usr/local/lib && lipo -create -arch ppc libglib-2.0.a -arch i386 i386/libglib-2.0.a -output libglib-2.0.a.tmp
+	cd $(BUILDROOT)/usr/local/lib && rm libglib-2.0.a 
+	cd $(BUILDROOT)/usr/local/lib && mv -f libglib-2.0.a.tmp libglib-2.0.a
+
+	cd $(BUILDROOT)/usr/local/lib && lipo -create -arch ppc libgmodule-2.0.a -arch i386 i386/libgmodule-2.0.a -output libgmodule-2.0.a.tmp
+	cd $(BUILDROOT)/usr/local/lib && rm libgmodule-2.0.a
+	cd $(BUILDROOT)/usr/local/lib && mv -f libgmodule-2.0.a.tmp libgmodule-2.0.a
+
+	cd $(BUILDROOT)/usr/local/lib && lipo -create -arch ppc libgobject-2.0.a -arch i386 i386/libgobject-2.0.a -output libgobject-2.0.a.tmp
+	cd $(BUILDROOT)/usr/local/lib && rm libgobject-2.0.a
+	cd $(BUILDROOT)/usr/local/lib && mv -f libgobject-2.0.a.tmp libgobject-2.0.a
+
+	cd $(BUILDROOT)/usr/local/lib && lipo -create -arch ppc libgthread-2.0.a -arch i386 i386/libgthread-2.0.a -output libgthread-2.0.a.tmp
+	cd $(BUILDROOT)/usr/local/lib && rm libgthread-2.0.a
+	cd $(BUILDROOT)/usr/local/lib && mv -f libgthread-2.0.a.tmp libgthread-2.0.a
 
 	cd $(SRCROOT)/jabberd-src/mu-conference-0.6.0 && make
 
-	cd $(SRCROOT)/libraries/Twisted-1.3.0   && python setup.py bdist_dumb
+	cd $(SRCROOT)/libraries/Twisted-1.3.0 && python setup.py bdist_dumb
 	cd $(SRCROOT)/modules/filetransfer/proxy65 && python setup.py bdist_dumb
 	cd $(SRCROOT)/jabberd-src && make LDFLAGS="$(LDFLAGS) -L$(BUILDROOT)/usr/local/lib"
+
+	cd $(SRCROOT)/jabberSetup && xcodebuild -project jabberSetup.xcode install SRCROOT=$(SRCROOT)/jabberSetup DSTROOT=$(DSTROOT) SYMROOT=$(SYMROOT)
 
 	cd $(SRCROOT)/libraries/Twisted-1.3.0/dist/ && cp Twisted*.tar.gz $(DSTROOT)/Twisted-1.3.0.tar.gz
 	gunzip $(DSTROOT)/Twisted-1.3.0.tar.gz 
@@ -407,40 +470,109 @@ do_clean:
 	#clean up caches
 	rm -f ./libraries/pkgconfig-0.15.0/config.status
 	rm -f ./libraries/pkgconfig-0.15.0/config.cache
-	rm -f ./libraries/gettext-0.13/config.status
-	rm -f ./libraries/gettext-0.13/config.cache
-	rm -f ./libraries/gettext-0.13/autoconf-lib-link/config.status
-	rm -f ./libraries/gettext-0.13/autoconf-lib-link/config.cache
-	rm -f ./libraries/gettext-0.13/gettext-runtime/config.status
-	rm -f ./libraries/gettext-0.13/gettext-runtime/config.cache
-	rm -f ./libraries/gettext-0.13/gettext-runtime/libasprintf/config.status
-	rm -f ./libraries/gettext-0.13/gettext-runtime/libasprintf/config.cache
-	rm -f ./libraries/gettext-0.13/gettext-tools/config.status
-	rm -f ./libraries/gettext-0.13/gettext-tools/config.cache
-	rm -f ./libraries/gettext-0.13/gettext-tools/config.cache
+
+	rm -f ./libraries/gettext-0.13_ppc/config.status
+	rm -f ./libraries/gettext-0.13_ppc/config.cache
+	rm -f ./libraries/gettext-0.13_ppc/autoconf-lib-link/config.status
+	rm -f ./libraries/gettext-0.13_ppc/autoconf-lib-link/config.cache
+	rm -f ./libraries/gettext-0.13_ppc/gettext-runtime/config.status
+	rm -f ./libraries/gettext-0.13_ppc/gettext-runtime/config.cache
+	rm -f ./libraries/gettext-0.13_ppc/gettext-runtime/libasprintf/config.status
+	rm -f ./libraries/gettext-0.13_ppc/gettext-runtime/libasprintf/config.cache
+	rm -f ./libraries/gettext-0.13_ppc/gettext-tools/config.status
+	rm -f ./libraries/gettext-0.13_ppc/gettext-tools/config.cache
+	rm -f ./libraries/gettext-0.13_ppc/gettext-tools/config.cache
+
+	#put back the modified files needed for clean up then delete later
+	cp -f ./libraries/gettext-0.13_ppc/autoconf-lib-link/xconfigure ./libraries/gettext-0.13_ppc/autoconf-lib-link/configure
+	cp -f ./libraries/gettext-0.13_ppc/gettext-tools/xconfigure ./libraries/gettext-0.13_ppc/gettext-tools/configure
+	cp -f ./libraries/gettext-0.13_ppc/gettext-runtime/xconfigure ./libraries/gettext-0.13_ppc/gettext-runtime/configure
+	cp -f ./libraries/gettext-0.13_ppc/gettext-runtime/libasprintf/xconfigure ./libraries/gettext-0.13_ppc/gettext-runtime/libasprintf/configure
+	cp -f ./libraries/gettext-0.13_ppc/gettext-tools/xconfig.h.in ./libraries/gettext-0.13_ppc/gettext-tools/config.h.in
+	cp -f ./libraries/gettext-0.13_ppc/gettext-runtime/libasprintf/xconfig.h.in ./libraries/gettext-0.13_ppc/gettext-runtime/libasprintf/config.h.in
+##	cp -f ./libraries/gettext-0.13_ppc/gettext-tools/po/xMakefile.in ./libraries/gettext-0.13/gettext-tools/po/Makefile.in
+
+	rm -f ./libraries/gettext-0.13_i386/config.status
+	rm -f ./libraries/gettext-0.13_i386/config.cache
+	rm -f ./libraries/gettext-0.13_i386/autoconf-lib-link/config.status
+	rm -f ./libraries/gettext-0.13_i386/autoconf-lib-link/config.cache
+	rm -f ./libraries/gettext-0.13_i386/gettext-runtime/config.status
+	rm -f ./libraries/gettext-0.13_i386/gettext-runtime/config.cache
+	rm -f ./libraries/gettext-0.13_i386/gettext-runtime/libasprintf/config.status
+	rm -f ./libraries/gettext-0.13_i386/gettext-runtime/libasprintf/config.cache
+	rm -f ./libraries/gettext-0.13_i386/gettext-tools/config.status
+	rm -f ./libraries/gettext-0.13_i386/gettext-tools/config.cache
+	rm -f ./libraries/gettext-0.13_i386/gettext-tools/config.cache
+
+        #put back the modified files needed for clean up then delete later
+	cp -f ./libraries/gettext-0.13_i386/autoconf-lib-link/xconfigure ./libraries/gettext-0.13_i386/autoconf-lib-link/configure
+	cp -f ./libraries/gettext-0.13_i386/gettext-tools/xconfigure ./libraries/gettext-0.13_i386/gettext-tools/configure
+	cp -f ./libraries/gettext-0.13_i386/gettext-runtime/xconfigure ./libraries/gettext-0.13_i386/gettext-runtime/configure
+	cp -f ./libraries/gettext-0.13_i386/gettext-runtime/libasprintf/xconfigure ./libraries/gettext-0.13_i386/gettext-runtime/libasprintf/configure
+	cp -f ./libraries/gettext-0.13_i386/gettext-tools/xconfig.h.in ./libraries/gettext-0.13_i386/gettext-tools/config.h.in
+	cp -f ./libraries/gettext-0.13_i386/gettext-runtime/libasprintf/xconfig.h.in ./libraries/gettext-0.13_i386/gettext-runtime/libasprintf/config.h.in
+
+	cd ./libraries/pkgconfig-0.15.0 && ./configure  --enable-debug=yes --prefix=$(BUILDROOT) --exec-prefix=$(BUILDROOT)/usr/local
+	cd ./libraries/pkgconfig-0.15.0 && make distclean
+
+	rm -f ./libraries/pkgconfig-0.15.0/glib-1.2.8/xconfig.cache
+
+	cd ./libraries/gettext-0.13_ppc && ./configure --target=ppc --enable-debug=yes --prefix=$(BUILDROOT) --exec-prefix=$(BUILDROOT)/usr/local
+	cd ./libraries/gettext-0.13_ppc && make distclean
+	cd ./libraries/gettext-0.13_i386 && ./configure --target=i386 --enable-debug=yes --prefix=$(BUILDROOT) --exec-prefix=$(BUILDROOT)/usr/local
+	cd ./libraries/gettext-0.13_i386 && make distclean
+
+	if test -f "./libraries/glib-2.4.5_ppc/Makefile" ; then \
+		cd ./libraries/glib-2.4.5_ppc && make -f MakeClean distclean ; \
+ 	fi
+	if test -f "./libraries/glib-2.4.5_i386/Makefile" ; then \
+		cd ./libraries/glib-2.4.5_i386 && make -f MakeClean distclean ; \
+	fi
+
+	cd  ./jabberd-src && touch platform-settings
+	cd  ./jabberd-src/jabberd/pth-1.4.0 && ./configure --host=ppc
+	cd  ./jabberd-src/jabberd/pth-1.4.0 && make clean
+
+	cd ./jabberd-src && make clean
+	cd ./jabberd-src/mu-conference-0.6.0 && make clean
+
+##	cd ./libraries/pyOpenSSL-0.5.1 && python setup.py clean
+	cd ./libraries/Twisted-1.3.0 && python setup.py clean	
+	cd ./modules/filetransfer/proxy65 && python setup.py clean
+	cd ./jabberSetup && xcodebuild -project jabberSetup.xcode clean 
 
 	#remove local builds and configure and make created and modified files
-	rm -f ./libraries/gettext-0.13/gettext-tools/config.h.in~
-	rm -f ./libraries/gettext-0.13/gettext-tools/config.h.in
-	rm -f ./libraries/gettext-0.13/gettext-runtime/libasprintf/config.h.in~
-	rm -f ./libraries/gettext-0.13/gettext-runtime/libasprintf/config.h.in
-	rm -f ./libraries/gettext-0.13/gettext-tools/po/Makefile.in
+	rm -f ./libraries/gettext-0.13_ppc/gettext-tools/config.h.in~
+	rm -f ./libraries/gettext-0.13_ppc/gettext-tools/config.h.in
+	rm -f ./libraries/gettext-0.13_ppc/gettext-runtime/libasprintf/config.h.in~
+	rm -f ./libraries/gettext-0.13_ppc/gettext-runtime/libasprintf/config.h.in
+	rm -f ./libraries/gettext-0.13_ppc/gettext-tools/po/Makefile.in
+	rm -f ./libraries/gettext-0.13_ppc/gettext-tools/lib/Makefile 
+	rm -f ./libraries/gettext-0.13_ppc/gettext-tools/lib/javacomp.sh   
+	rm -f ./libraries/gettext-0.13_ppc/gettext-tools/lib/javaexec.sh
+	rm -f ./libraries/gettext-0.13_ppc/gettext-tools/libuniname/Makefile   
+	rm -f ./libraries/gettext-0.13_ppc/gettext-tools/m4/Makefile 
+	rm -f ./libraries/gettext-0.13_ppc/gettext-tools/po/Makefile 
+	rm -f ./libraries/gettext-0.13_ppc/gettext-tools/po/POTFILES    
+	rm -f ./libraries/gettext-0.13_ppc/gettext-tools/projects/Makefile  
+	rm -f ./libraries/gettext-0.13_ppc/gettext-tools/src/Makefile
+	rm -f ./libraries/gettext-0.13_ppc/gettext-tools/src/user-email
 
-
-
-	rm -f ./libraries/gettext-0.13/gettext-tools/lib/Makefile 
-	rm -f ./libraries/gettext-0.13/gettext-tools/lib/javacomp.sh   
-	rm -f ./libraries/gettext-0.13/gettext-tools/lib/javaexec.sh
-	rm -f ./libraries/gettext-0.13/gettext-tools/libuniname/Makefile   
-	rm -f ./libraries/gettext-0.13/gettext-tools/m4/Makefile 
-
-	rm -f ./libraries/gettext-0.13/gettext-tools/m4/Makefile 
-	rm -f ./libraries/gettext-0.13/gettext-tools/po/Makefile 
-	rm -f ./libraries/gettext-0.13/gettext-tools/po/POTFILES    
-	rm -f ./libraries/gettext-0.13/gettext-tools/projects/Makefile  
-
-	rm -f ./libraries/gettext-0.13/gettext-tools/src/Makefile
-	rm -f ./libraries/gettext-0.13/gettext-tools/src/user-email
+	rm -f ./libraries/gettext-0.13_i386/gettext-tools/config.h.in~
+	rm -f ./libraries/gettext-0.13_i386/gettext-tools/config.h.in
+	rm -f ./libraries/gettext-0.13_i386/gettext-runtime/libasprintf/config.h.in~
+	rm -f ./libraries/gettext-0.13_i386/gettext-runtime/libasprintf/config.h.in
+	rm -f ./libraries/gettext-0.13_i386/gettext-tools/po/Makefile.in
+	rm -f ./libraries/gettext-0.13_i386/gettext-tools/lib/Makefile
+	rm -f ./libraries/gettext-0.13_i386/gettext-tools/lib/javacomp.sh
+	rm -f ./libraries/gettext-0.13_i386/gettext-tools/lib/javaexec.sh
+	rm -f ./libraries/gettext-0.13_i386/gettext-tools/libuniname/Makefile
+	rm -f ./libraries/gettext-0.13_i386/gettext-tools/m4/Makefile
+	rm -f ./libraries/gettext-0.13_i386/gettext-tools/po/Makefile
+	rm -f ./libraries/gettext-0.13_i386/gettext-tools/po/POTFILES
+	rm -f ./libraries/gettext-0.13_i386/gettext-tools/projects/Makefile
+	rm -f ./libraries/gettext-0.13_i386/gettext-tools/src/Makefile
+	rm -f ./libraries/gettext-0.13_i386/gettext-tools/src/user-email
 
 	rm -f ./jabberd-src/platform-settings
 	rm -f ./jabberd-src/jabberd/pth-1.4.0/Makefile
@@ -459,6 +591,7 @@ do_clean:
 	rm -rf ./libraries/Twisted-1.3.0/dist
 	rm -rf ./modules/filetransfer/proxy65/build
 	rm -rf ./modules/filetransfer/proxy65/dist
+	rm -rf ./jabberSetup/build
 
 	rm -rf ./build
 
@@ -472,56 +605,94 @@ do_clean:
 	rm -f ./libraries/Twisted-1.3.0/twisted/python/__init__.pyc
 	rm -f ./libraries/Twisted-1.3.0/twisted/python/compat.pyc
 
-	rm -f ./libraries/gettext-0.13/aclocal.m4
-
-	rm -f ./libraries/gettext-0.13/gettext-runtime/man/Makefile
-	rm -f ./libraries/gettext-0.13/gettext-runtime/doc/Makefile
-	rm -f ./libraries/gettext-0.13/gettext-tools/doc/Makefile
-	rm -f ./libraries/gettext-0.13/gettext-tools/examples/Makefile
-	rm -f ./libraries/gettext-0.13/gettext-tools/examples/po/Makefile
-	rm -f ./libraries/gettext-0.13/gettext-tools/man/Makefile
-	rm -f ./libraries/gettext-0.13/gettext-tools/misc/Makefile
-	rm -f ./libraries/gettext-0.13/gettext-tools/tests/Makefile
-
-	rm -f ./libraries/gettext-0.13/autoconf-lib-link/configure
-	rm -f ./libraries/gettext-0.13/gettext-tools/configure
-	rm -f ./libraries/gettext-0.13/gettext-runtime/configure
-	rm -f ./libraries/gettext-0.13/gettext-runtime/libasprintf/configure
-
-	rm -f ./libraries/gettext-0.13/autoconf-lib-link/aclocal.m4
-	rm -f ./libraries/gettext-0.13/gettext-runtime/libasprintf/aclocal.m4
-	rm -f ./libraries/gettext-0.13/gettext-runtime/man/x-to-1
-	rm -f ./libraries/gettext-0.13/gettext-runtime/src/Makefile
-	rm -f ./libraries/gettext-0.13/gettext-tools/aclocal.m4  
-	rm -f ./libraries/gettext-0.13/gettext-tools/man/x-to-1 
-
-	rm -f ./libraries/gettext-0.13/gettext-tools/examples/installpaths
-	rm -f ./libraries/gettext-0.13/gettext-tools/misc/gettextize
-	rm -f ./libraries/gettext-0.13/gettext-tools/misc/autopoint
-
-	rm -rf ./libraries/gettext-0.13/autoconf-lib-link/autom4te.cache
-	rm -rf ./libraries/gettext-0.13/gettext-runtime/autom4te.cache
-	rm -rf ./libraries/gettext-0.13/gettext-runtime/libasprintf/autom4te.cache
-	rm -rf ./libraries/gettext-0.13/gettext-tools/autom4te.cache
+	rm -f ./libraries/gettext-0.13_i386/gettext-runtime/man/Makefile
+	rm -f ./libraries/gettext-0.13_i386/gettext-runtime/doc/Makefile
+	rm -f ./libraries/gettext-0.13_i386/gettext-tools/doc/Makefile
+	rm -f ./libraries/gettext-0.13_i386/gettext-tools/examples/Makefile
+	rm -f ./libraries/gettext-0.13_i386/gettext-tools/examples/po/Makefile
+	rm -f ./libraries/gettext-0.13_i386/gettext-tools/man/Makefile
+	rm -f ./libraries/gettext-0.13_i386/gettext-tools/misc/Makefile
+	rm -f ./libraries/gettext-0.13_i386/gettext-tools/tests/Makefile
+	rm -f ./libraries/gettext-0.13_i386/autoconf-lib-link/configure
+	rm -f ./libraries/gettext-0.13_i386/gettext-tools/configure
+	rm -f ./libraries/gettext-0.13_i386/gettext-runtime/configure
+	rm -f ./libraries/gettext-0.13_i386/gettext-runtime/libasprintf/configure
+	rm -f ./libraries/gettext-0.13_i386/autoconf-lib-link/aclocal.m4
+	rm -f ./libraries/gettext-0.13_i386/gettext-runtime/libasprintf/aclocal.m4
+	rm -f ./libraries/gettext-0.13_i386/gettext-runtime/man/x-to-1
+	rm -f ./libraries/gettext-0.13_i386/gettext-runtime/src/Makefile	
+	rm -f ./libraries/gettext-0.13_ppc/aclocal.m4
+	rm -f ./libraries/gettext-0.13_ppc/gettext-runtime/man/Makefile
+	rm -f ./libraries/gettext-0.13_ppc/gettext-runtime/doc/Makefile
+	rm -f ./libraries/gettext-0.13_ppc/gettext-tools/doc/Makefile
+	rm -f ./libraries/gettext-0.13_ppc/gettext-tools/examples/Makefile
+	rm -f ./libraries/gettext-0.13_ppc/gettext-tools/examples/po/Makefile
+	rm -f ./libraries/gettext-0.13_ppc/gettext-tools/man/Makefile
+	rm -f ./libraries/gettext-0.13_ppc/gettext-tools/misc/Makefile
+	rm -f ./libraries/gettext-0.13_ppc/gettext-tools/tests/Makefile
+	rm -f ./libraries/gettext-0.13_ppc/autoconf-lib-link/configure
+	rm -f ./libraries/gettext-0.13_ppc/gettext-tools/configure
+	rm -f ./libraries/gettext-0.13_ppc/gettext-runtime/configure
+	rm -f ./libraries/gettext-0.13_ppc/gettext-runtime/libasprintf/configure
+	rm -f ./libraries/gettext-0.13_ppc/autoconf-lib-link/aclocal.m4
+	rm -f ./libraries/gettext-0.13_ppc/gettext-runtime/libasprintf/aclocal.m4
+	rm -f ./libraries/gettext-0.13_ppc/gettext-runtime/man/x-to-1
+	rm -f ./libraries/gettext-0.13_ppc/gettext-runtime/src/Makefile
+	rm -f ./libraries/gettext-0.13_ppc/gettext-tools/aclocal.m4
+	rm -f ./libraries/gettext-0.13_ppc/gettext-tools/man/x-to-1
+	rm -f ./libraries/gettext-0.13_ppc/gettext-tools/examples/installpaths
+	rm -f ./libraries/gettext-0.13_ppc/gettext-tools/misc/gettextize
+	rm -f ./libraries/gettext-0.13_ppc/gettext-tools/misc/autopoint
+	rm -rf ./libraries/gettext-0.13_ppc/autoconf-lib-link/autom4te.cache
+	rm -rf ./libraries/gettext-0.13_ppc/gettext-runtime/autom4te.cache
+	rm -rf ./libraries/gettext-0.13_ppc/gettext-runtime/libasprintf/autom4te.cache
+	rm -rf ./libraries/gettext-0.13_ppc/gettext-tools/autom4te.cache
+	rm -rf ./libraries/gettext-0.13_ppc/autoconf-lib-link/aclocal.m4
+	rm -rf ./libraries/gettext-0.13_ppc/autoconf-lib-link/configure
+	rm -rf ./libraries/gettext-0.13_ppc/gettext-runtime/configure
+	rm -rf ./libraries/gettext-0.13_ppc/gettext-runtime/intl-java/Makefile
+	rm -rf ./libraries/gettext-0.13_ppc/gettext-runtime/lib/Makefile
+	rm -rf ./libraries/gettext-0.13_ppc/gettext-runtime/lib/javacomp.sh
+	rm -rf ./libraries/gettext-0.13_ppc/gettext-runtime/libasprintf/aclocal.m4
+	rm -rf ./libraries/gettext-0.13_ppc/gettext-runtime/libasprintf/config.h.in
+	rm -rf ./libraries/gettext-0.13_ppc/gettext-runtime/libasprintf/configure
+	rm -rf ./libraries/gettext-0.13_ppc/gettext-runtime/m4/Makefile
+	rm -rf ./libraries/gettext-0.13_ppc/gettext-runtime/po/Makefile
+	rm -rf ./libraries/gettext-0.13_ppc/gettext-runtime/po/Makefile.in
+	rm -rf ./libraries/gettext-0.13_ppc/gettext-runtime/po/POTFILES
+	rm -rf ./libraries/gettext-0.13_ppc/gettext-runtime/aclocal.m4
+	rm -rf ./libraries/gettext-0.13_ppc/gettext-tools/aclocal.m4
+	rm -rf ./libraries/gettext-0.13_ppc/gettext-tools/config.h.in
+	rm -rf ./libraries/gettext-0.13_ppc/gettext-tools/configure
+	rm -f ./libraries/gettext-0.13_i386/aclocal.m4
+	rm -f ./libraries/gettext-0.13_i386/gettext-tools/aclocal.m4
+	rm -f ./libraries/gettext-0.13_i386/gettext-tools/man/x-to-1
+	rm -f ./libraries/gettext-0.13_i386/gettext-tools/examples/installpaths
+	rm -f ./libraries/gettext-0.13_i386/gettext-tools/misc/gettextize
+	rm -f ./libraries/gettext-0.13_i386/gettext-tools/misc/autopoint
+	rm -rf ./libraries/gettext-0.13_i386/autoconf-lib-link/autom4te.cache
+	rm -rf ./libraries/gettext-0.13_i386/gettext-runtime/autom4te.cache
+	rm -rf ./libraries/gettext-0.13_i386/gettext-runtime/libasprintf/autom4te.cache
+	rm -rf ./libraries/gettext-0.13_i386/gettext-tools/autom4te.cache
+	rm -rf ./libraries/gettext-0.13_i386/autoconf-lib-link/aclocal.m4
+	rm -rf ./libraries/gettext-0.13_i386/autoconf-lib-link/configure
+	rm -rf ./libraries/gettext-0.13_i386/gettext-runtime/configure
+	rm -rf ./libraries/gettext-0.13_i386/gettext-runtime/intl-java/Makefile
+	rm -rf ./libraries/gettext-0.13_i386/gettext-runtime/lib/Makefile
+	rm -rf ./libraries/gettext-0.13_i386/gettext-runtime/lib/javacomp.sh
+	rm -rf ./libraries/gettext-0.13_i386/gettext-runtime/libasprintf/aclocal.m4
+	rm -rf ./libraries/gettext-0.13_i386/gettext-runtime/libasprintf/config.h.in
+	rm -rf ./libraries/gettext-0.13_i386/gettext-runtime/libasprintf/configure
+	rm -rf ./libraries/gettext-0.13_i386/gettext-runtime/m4/Makefile
+	rm -rf ./libraries/gettext-0.13_i386/gettext-runtime/po/Makefile
+	rm -rf ./libraries/gettext-0.13_i386/gettext-runtime/po/Makefile.in
+	rm -rf ./libraries/gettext-0.13_i386/gettext-runtime/po/POTFILES
+	rm -rf ./libraries/gettext-0.13_i386/gettext-runtime/aclocal.m4
+	rm -rf ./libraries/gettext-0.13_i386/gettext-tools/aclocal.m4
+	rm -rf ./libraries/gettext-0.13_i386/gettext-tools/config.h.in
+	rm -rf ./libraries/gettext-0.13_i386/gettext-tools/configure
 
 	rm -rf ./jabberd-src/jabberd/pth-1.4.0/Makefile
-	rm -rf ./libraries/gettext-0.13/autoconf-lib-link/aclocal.m4
-	rm -rf ./libraries/gettext-0.13/autoconf-lib-link/configure
-	rm -rf ./libraries/gettext-0.13/gettext-runtime/configure   
-	rm -rf ./libraries/gettext-0.13/gettext-runtime/intl-java/Makefile
-	rm -rf ./libraries/gettext-0.13/gettext-runtime/lib/Makefile
-	rm -rf ./libraries/gettext-0.13/gettext-runtime/lib/javacomp.sh
-	rm -rf ./libraries/gettext-0.13/gettext-runtime/libasprintf/aclocal.m4
-	rm -rf ./libraries/gettext-0.13/gettext-runtime/libasprintf/config.h.in
-	rm -rf ./libraries/gettext-0.13/gettext-runtime/libasprintf/configure
-	rm -rf ./libraries/gettext-0.13/gettext-runtime/m4/Makefile
-	rm -rf ./libraries/gettext-0.13/gettext-runtime/po/Makefile
-	rm -rf ./libraries/gettext-0.13/gettext-runtime/po/Makefile.in
-	rm -rf ./libraries/gettext-0.13/gettext-runtime/po/POTFILES
-	rm -rf ./libraries/gettext-0.13/gettext-runtime/aclocal.m4
-	rm -rf ./libraries/gettext-0.13/gettext-tools/aclocal.m4
-	rm -rf ./libraries/gettext-0.13/gettext-tools/config.h.in
-	rm -rf ./libraries/gettext-0.13/gettext-tools/configure
 	rm -rf ./libraries/pkgconfig-0.15.0/glib-1.2.8/glib.spec
 	rm -rf ./libraries/pkgconfig-0.15.0/glib-1.2.8/xconfig.cache
 	rm -rf ./libraries/pkgconfig-0.15.0/glib-1.2.8/glibconfig.h
@@ -544,9 +715,11 @@ do_clean:
 do_clean_installed_source:
 	# do a standard clean and then remove some stuff that it
 	# misses, most of which belongs to pth
-	cd $(SRCROOT)/libraries/gettext-0.13 && make distclean
+	cd $(SRCROOT)/libraries/gettext-0.13_ppc && make distclean
+	cd $(SRCROOT)/libraries/gettext-0.13_i386 && make distclean
 	cd $(SRCROOT)/libraries/pkgconfig-0.15.0 && make distclean
-	cd $(SRCROOT)/libraries/glib-2.4.5 && make distclean
+	cd $(SRCROOT)/libraries/glib-2.4.5_ppc && make distclean
+	cd $(SRCROOT)/libraries/glib-2.4.5_i386 && make distclean
 
 	cd $(SRCROOT)/jabberd-src && make clean
 	cd $(SRCROOT)/jabberd-src/mu-conference-0.6.0 && make clean
@@ -564,6 +737,7 @@ do_clean_installed_source:
 
 ##	cd $(SRCROOT)/libraries/pyOpenSSL-0.5.1 && python setup.py clean
 	cd $(SRCROOT)/libraries/Twisted-1.3.0   && python setup.py clean
+	cd $(SRCROOT)/jabberSetup && xcodebuild -project jabberSetup.xcode clean
 	cd $(SRCROOT)/modules/filetransfer/proxy65 && python setup.py clean
 	rm -rf $(SRCROOT)/libraries/pyOpenSSL-0.5.1/build
 	rm -rf $(SRCROOT)/libraries/pyOpenSSL-0.5.1/dist
@@ -571,6 +745,7 @@ do_clean_installed_source:
 	rm -rf $(SRCROOT)/libraries/Twisted-1.3.0/dist
 	rm -rf $(SRCROOT)/modules/filetransfer/proxy65/build
 	rm -rf $(SRCROOT)/modules/filetransfer/proxy65/dist
+	rm -rf $(SRCROOT)/jabberSetup/build
 	rm -rf $(SRCROOT)/build
 
 	rm -f $(SRCROOT)/libraries/pkgconfig-0.15.0/glib-1.2.8/glibconfig-sysdefs.h
@@ -584,61 +759,137 @@ do_clean_installed_source:
 	rm -f $(SRCROOT)/libraries/Twisted-1.3.0/twisted/python/__init__.pyc
 	rm -f $(SRCROOT)/libraries/Twisted-1.3.0/twisted/python/compat.pyc
 
-	rm -f $(SRCROOT)/libraries/gettext-0.13/aclocal.m4
+	rm -f ./libraries/gettext-0.13_ppc/aclocal.m4
+	rm -f ./libraries/gettext-0.13_ppc/gettext-runtime/man/Makefile
+	rm -f ./libraries/gettext-0.13_ppc/gettext-runtime/doc/Makefile
+	rm -f ./libraries/gettext-0.13_ppc/gettext-tools/doc/Makefile
+	rm -f ./libraries/gettext-0.13_ppc/gettext-tools/examples/Makefile
+	rm -f ./libraries/gettext-0.13_ppc/gettext-tools/examples/po/Makefile
+	rm -f ./libraries/gettext-0.13_ppc/gettext-tools/man/Makefile
+	rm -f ./libraries/gettext-0.13_ppc/gettext-tools/misc/Makefile
+	rm -f ./libraries/gettext-0.13_ppc/gettext-tools/tests/Makefile
+	rm -f ./libraries/gettext-0.13_ppc/autoconf-lib-link/configure
+	rm -f ./libraries/gettext-0.13_ppc/gettext-tools/configure
+	rm -f ./libraries/gettext-0.13_ppc/gettext-runtime/configure
+	rm -f ./libraries/gettext-0.13_ppc/gettext-runtime/libasprintf/configure
+	rm -f ./libraries/gettext-0.13_ppc/autoconf-lib-link/aclocal.m4
+	rm -f ./libraries/gettext-0.13_ppc/gettext-runtime/libasprintf/aclocal.m4
+	rm -f ./libraries/gettext-0.13_ppc/gettext-runtime/man/x-to-1
+	rm -f ./libraries/gettext-0.13_ppc/gettext-runtime/src/Makefile
+	rm -f ./libraries/gettext-0.13_ppc/gettext-tools/aclocal.m4
+	rm -f ./libraries/gettext-0.13_ppc/gettext-tools/man/x-to-1
+	rm -f ./libraries/gettext-0.13_ppc/gettext-tools/examples/installpaths
+	rm -f ./libraries/gettext-0.13_ppc/gettext-tools/misc/gettextize
+	rm -f ./libraries/gettext-0.13_ppc/gettext-tools/misc/autopoint
+	rm -rf ./libraries/gettext-0.13_ppc/autoconf-lib-link/autom4te.cache
+	rm -rf ./libraries/gettext-0.13_ppc/gettext-runtime/autom4te.cache
+	rm -rf ./libraries/gettext-0.13_ppc/gettext-runtime/libasprintf/autom4te.cache
+	rm -rf ./libraries/gettext-0.13_ppc/gettext-tools/autom4te.cache
+	rm -rf ./libraries/gettext-0.13_ppc/autoconf-lib-link/aclocal.m4
+	rm -rf ./libraries/gettext-0.13_ppc/autoconf-lib-link/configure
+	rm -rf ./libraries/gettext-0.13_ppc/gettext-runtime/configure
+	rm -rf ./libraries/gettext-0.13_ppc/gettext-runtime/intl-java/Makefile
+	rm -rf ./libraries/gettext-0.13_ppc/gettext-runtime/lib/Makefile
+	rm -rf ./libraries/gettext-0.13_ppc/gettext-runtime/lib/javacomp.sh
+	rm -rf ./libraries/gettext-0.13_ppc/gettext-runtime/libasprintf/aclocal.m4
+	rm -rf ./libraries/gettext-0.13_ppc/gettext-runtime/libasprintf/config.h.in
+	rm -rf ./libraries/gettext-0.13_ppc/gettext-runtime/libasprintf/configure
+	rm -rf ./libraries/gettext-0.13_ppc/gettext-runtime/m4/Makefile
+	rm -rf ./libraries/gettext-0.13_ppc/gettext-runtime/po/Makefile
+	rm -rf ./libraries/gettext-0.13_ppc/gettext-runtime/po/Makefile.in
+	rm -rf ./libraries/gettext-0.13_ppc/gettext-runtime/po/POTFILES
+	rm -rf ./libraries/gettext-0.13_ppc/gettext-runtime/aclocal.m4
+	rm -rf ./libraries/gettext-0.13_ppc/gettext-tools/aclocal.m4
+	rm -rf ./libraries/gettext-0.13_ppc/gettext-tools/config.h.in
+	rm -rf ./libraries/gettext-0.13_ppc/gettext-tools/configure
+	rm -rf $(SRCROOT)/libraries/gettext-0.13_ppc/autoconf-lib-link/autom4te.cache
+	rm -rf $(SRCROOT)/libraries/gettext-0.13_ppc/gettext-runtime/autom4te.cache
+	rm -rf $(SRCROOT)/libraries/gettext-0.13_ppc/gettext-runtime/libasprintf/autom4te.cache
+	rm -rf $(SRCROOT)/libraries/gettext-0.13_ppc/gettext-tools/autom4te.cache
+	rm -rf $(SRCROOT)/libraries/gettext-0.13_ppc/autoconf-lib-link/aclocal.m4
+	rm -rf $(SRCROOT)/libraries/gettext-0.13_ppc/autoconf-lib-link/configure
+	rm -rf $(SRCROOT)/libraries/gettext-0.13_ppc/gettext-runtime/configure
+	rm -rf $(SRCROOT)/libraries/gettext-0.13_ppc/gettext-runtime/intl-java/Makefile
+	rm -rf $(SRCROOT)/libraries/gettext-0.13_ppc/gettext-runtime/lib/Makefile
+	rm -rf $(SRCROOT)/libraries/gettext-0.13_ppc/gettext-runtime/lib/javacomp.sh
+	rm -rf $(SRCROOT)/libraries/gettext-0.13_ppc/gettext-runtime/libasprintf/aclocal.m4
+	rm -rf $(SRCROOT)/libraries/gettext-0.13_ppc/gettext-runtime/libasprintf/config.h.in
+	rm -rf $(SRCROOT)/libraries/gettext-0.13_ppc/gettext-runtime/libasprintf/configure
+	rm -rf $(SRCROOT)/libraries/gettext-0.13_ppc/gettext-runtime/m4/Makefile
+	rm -rf $(SRCROOT)/libraries/gettext-0.13_ppc/gettext-runtime/po/Makefile
+	rm -rf $(SRCROOT)/libraries/gettext-0.13_ppc/gettext-runtime/po/Makefile.in
+	rm -rf $(SRCROOT)/libraries/gettext-0.13_ppc/gettext-runtime/po/POTFILES
+	rm -rf $(SRCROOT)/libraries/gettext-0.13_ppc/gettext-runtime/aclocal.m4
+	rm -rf $(SRCROOT)/libraries/gettext-0.13_ppc/gettext-tools/aclocal.m4
+	rm -rf $(SRCROOT)/libraries/gettext-0.13_ppc/gettext-tools/config.h.in
+	rm -rf $(SRCROOT)/libraries/gettext-0.13_ppc/gettext-tools/configure
 
-	rm -rf $(SRCROOT)/libraries/gettext-0.13/autoconf-lib-link/autom4te.cache
-	rm -rf $(SRCROOT)/libraries/gettext-0.13/gettext-runtime/autom4te.cache
-	rm -rf $(SRCROOT)/libraries/gettext-0.13/gettext-runtime/libasprintf/autom4te.cache
-	rm -rf $(SRCROOT)/libraries/gettext-0.13/gettext-tools/autom4te.cache
-
-	rm -f $(SRCROOT)/libraries/gettext-0.13/gettext-runtime/man/Makefile
-	rm -f $(SRCROOT)/libraries/gettext-0.13/gettext-runtime/doc/Makefile
-	rm -f $(SRCROOT)/libraries/gettext-0.13/gettext-runtime/src/Makefile
-	rm -f $(SRCROOT)/libraries/gettext-0.13/gettext-tools/doc/Makefile
-	rm -f $(SRCROOT)/libraries/gettext-0.13/gettext-tools/examples/Makefile
-	rm -f $(SRCROOT)/libraries/gettext-0.13/gettext-tools/examples/po/Makefile
-	rm -f $(SRCROOT)/libraries/gettext-0.13/gettext-tools/man/Makefile
-	rm -f $(SRCROOT)/libraries/gettext-0.13/gettext-tools/misc/Makefile
-	rm -f $(SRCROOT)/libraries/gettext-0.13/gettext-tools/tests/Makefile
-
-	rm -f $(SRCROOT)/libraries/gettext-0.13/autoconf-lib-link/configure
-	rm -f $(SRCROOT)/libraries/gettext-0.13/gettext-tools/configure
-	rm -f $(SRCROOT)/libraries/gettext-0.13/gettext-runtime/configure
-	rm -f $(SRCROOT)/libraries/gettext-0.13/gettext-runtime/libasprintf/configure
-
-	rm -f $(SRCROOT)/libraries/gettext-0.13/autoconf-lib-link/aclocal.m4
-	rm -f $(SRCROOT)/libraries/gettext-0.13/gettext-runtime/libasprintf/aclocal.m4
-	rm -f $(SRCROOT)/libraries/gettext-0.13/gettext-runtime/man/x-to-1
-	rm -f $(SRCROOT)/libraries/gettext-0.13/gettext-tools/aclocal.m4  
-	rm -f $(SRCROOT)/libraries/gettext-0.13/gettext-tools/man/x-to-1 
-
-	rm -f $(SRCROOT)/libraries/gettext-0.13/gettext-tools/examples/installpaths
-	rm -f $(SRCROOT)/libraries/gettext-0.13/gettext-tools/misc/gettextize
-	rm -f $(SRCROOT)/libraries/gettext-0.13/gettext-tools/misc/autopoint
-	rm -f $(SRCROOT)/libraries/gettext-0.13/gettext-tools/config.h.in
-	rm -f $(SRCROOT)/libraries/gettext-0.13/gettext-runtime/libasprintf/config.h.in
-	rm -f $(SRCROOT)/libraries/gettext-0.13/gettext-tools/config.h.in~
-	rm -f $(SRCROOT)/libraries/gettext-0.13/gettext-runtime/libasprintf/config.h.in~
-	rm -f $(SRCROOT)/libraries/gettext-0.13/gettext-tools/po/Makefile.in
+	rm -f ./libraries/gettext-0.13_i386/aclocal.m4
+	rm -f ./libraries/gettext-0.13_i386/gettext-runtime/man/Makefile
+	rm -f ./libraries/gettext-0.13_i386/gettext-runtime/doc/Makefile
+	rm -f ./libraries/gettext-0.13_i386/gettext-tools/doc/Makefile
+	rm -f ./libraries/gettext-0.13_i386/gettext-tools/examples/Makefile
+	rm -f ./libraries/gettext-0.13_i386/gettext-tools/examples/po/Makefile
+	rm -f ./libraries/gettext-0.13_i386/gettext-tools/man/Makefile
+	rm -f ./libraries/gettext-0.13_i386/gettext-tools/misc/Makefile
+	rm -f ./libraries/gettext-0.13_i386/gettext-tools/tests/Makefile
+	rm -f ./libraries/gettext-0.13_i386/autoconf-lib-link/configure
+	rm -f ./libraries/gettext-0.13_i386/gettext-tools/configure
+	rm -f ./libraries/gettext-0.13_i386/gettext-runtime/configure
+	rm -f ./libraries/gettext-0.13_i386/gettext-runtime/libasprintf/configure
+	rm -f ./libraries/gettext-0.13_i386/autoconf-lib-link/aclocal.m4
+	rm -f ./libraries/gettext-0.13_i386/gettext-runtime/libasprintf/aclocal.m4
+	rm -f ./libraries/gettext-0.13_i386/gettext-runtime/man/x-to-1
+	rm -f ./libraries/gettext-0.13_i386/gettext-runtime/src/Makefile
+	rm -f ./libraries/gettext-0.13_i386/gettext-tools/aclocal.m4
+	rm -f ./libraries/gettext-0.13_i386/gettext-tools/man/x-to-1
+	rm -f ./libraries/gettext-0.13_i386/gettext-tools/examples/installpaths
+	rm -f ./libraries/gettext-0.13_i386/gettext-tools/misc/gettextize
+	rm -f ./libraries/gettext-0.13_i386/gettext-tools/misc/autopoint
+	rm -rf ./libraries/gettext-0.13_i386/autoconf-lib-link/autom4te.cache
+	rm -rf ./libraries/gettext-0.13_i386/gettext-runtime/autom4te.cache
+	rm -rf ./libraries/gettext-0.13_i386/gettext-runtime/libasprintf/autom4te.cache
+	rm -rf ./libraries/gettext-0.13_i386/gettext-tools/autom4te.cache
+	rm -rf ./libraries/gettext-0.13_i386/autoconf-lib-link/aclocal.m4
+	rm -rf ./libraries/gettext-0.13_i386/autoconf-lib-link/configure
+	rm -rf ./libraries/gettext-0.13_i386/gettext-runtime/configure
+	rm -rf ./libraries/gettext-0.13_i386/gettext-runtime/intl-java/Makefile
+	rm -rf ./libraries/gettext-0.13_i386/gettext-runtime/lib/Makefile
+	rm -rf ./libraries/gettext-0.13_i386/gettext-runtime/lib/javacomp.sh
+	rm -rf ./libraries/gettext-0.13_i386/gettext-runtime/libasprintf/aclocal.m4
+	rm -rf ./libraries/gettext-0.13_i386/gettext-runtime/libasprintf/config.h.in
+	rm -rf ./libraries/gettext-0.13_i386/gettext-runtime/libasprintf/configure
+	rm -rf ./libraries/gettext-0.13_i386/gettext-runtime/m4/Makefile
+	rm -rf ./libraries/gettext-0.13_i386/gettext-runtime/po/Makefile
+	rm -rf ./libraries/gettext-0.13_i386/gettext-runtime/po/Makefile.in
+	rm -rf ./libraries/gettext-0.13_i386/gettext-runtime/po/POTFILES
+	rm -rf ./libraries/gettext-0.13_i386/gettext-runtime/aclocal.m4
+	rm -rf ./libraries/gettext-0.13_i386/gettext-tools/aclocal.m4
+	rm -rf ./libraries/gettext-0.13_i386/gettext-tools/config.h.in
+	rm -rf ./libraries/gettext-0.13_i386/gettext-tools/configure
+	rm -rf $(SRCROOT)/libraries/gettext-0.13_i386/autoconf-lib-link/autom4te.cache
+	rm -rf $(SRCROOT)/libraries/gettext-0.13_i386/gettext-runtime/autom4te.cache
+	rm -rf $(SRCROOT)/libraries/gettext-0.13_i386/gettext-runtime/libasprintf/autom4te.cache
+	rm -rf $(SRCROOT)/libraries/gettext-0.13_i386/gettext-tools/autom4te.cache
+	rm -rf $(SRCROOT)/libraries/gettext-0.13_i386/autoconf-lib-link/aclocal.m4
+	rm -rf $(SRCROOT)/libraries/gettext-0.13_i386/autoconf-lib-link/configure
+	rm -rf $(SRCROOT)/libraries/gettext-0.13_i386/gettext-runtime/configure
+	rm -rf $(SRCROOT)/libraries/gettext-0.13_i386/gettext-runtime/intl-java/Makefile
+	rm -rf $(SRCROOT)/libraries/gettext-0.13_i386/gettext-runtime/lib/Makefile
+	rm -rf $(SRCROOT)/libraries/gettext-0.13_i386/gettext-runtime/lib/javacomp.sh
+	rm -rf $(SRCROOT)/libraries/gettext-0.13_i386/gettext-runtime/libasprintf/aclocal.m4
+	rm -rf $(SRCROOT)/libraries/gettext-0.13_i386/gettext-runtime/libasprintf/config.h.in
+	rm -rf $(SRCROOT)/libraries/gettext-0.13_i386/gettext-runtime/libasprintf/configure
+	rm -rf $(SRCROOT)/libraries/gettext-0.13_i386/gettext-runtime/m4/Makefile
+	rm -rf $(SRCROOT)/libraries/gettext-0.13_i386/gettext-runtime/po/Makefile
+	rm -rf $(SRCROOT)/libraries/gettext-0.13_i386/gettext-runtime/po/Makefile.in
+	rm -rf $(SRCROOT)/libraries/gettext-0.13_i386/gettext-runtime/po/POTFILES
+	rm -rf $(SRCROOT)/libraries/gettext-0.13_i386/gettext-runtime/aclocal.m4
+	rm -rf $(SRCROOT)/libraries/gettext-0.13_i386/gettext-tools/aclocal.m4
+	rm -rf $(SRCROOT)/libraries/gettext-0.13_i386/gettext-tools/config.h.in
+	rm -rf $(SRCROOT)/libraries/gettext-0.13_i386/gettext-tools/configure
 
 	rm -rf $(SRCROOT)/jabberd-src/jabberd/pth-1.4.0/Makefile
-	rm -rf $(SRCROOT)/libraries/gettext-0.13/autoconf-lib-link/aclocal.m4
-	rm -rf $(SRCROOT)/libraries/gettext-0.13/autoconf-lib-link/configure
-	rm -rf $(SRCROOT)/libraries/gettext-0.13/gettext-runtime/configure   
-	rm -rf $(SRCROOT)/libraries/gettext-0.13/gettext-runtime/intl-java/Makefile
-	rm -rf $(SRCROOT)/libraries/gettext-0.13/gettext-runtime/lib/Makefile
-	rm -rf $(SRCROOT)/libraries/gettext-0.13/gettext-runtime/lib/javacomp.sh
-	rm -rf $(SRCROOT)/libraries/gettext-0.13/gettext-runtime/libasprintf/aclocal.m4
-	rm -rf $(SRCROOT)/libraries/gettext-0.13/gettext-runtime/libasprintf/config.h.in
-	rm -rf $(SRCROOT)/libraries/gettext-0.13/gettext-runtime/libasprintf/configure
-	rm -rf $(SRCROOT)/libraries/gettext-0.13/gettext-runtime/m4/Makefile
-	rm -rf $(SRCROOT)/libraries/gettext-0.13/gettext-runtime/po/Makefile
-	rm -rf $(SRCROOT)/libraries/gettext-0.13/gettext-runtime/po/Makefile.in
-	rm -rf $(SRCROOT)/libraries/gettext-0.13/gettext-runtime/po/POTFILES
-	rm -rf $(SRCROOT)/libraries/gettext-0.13/gettext-runtime/aclocal.m4
-	rm -rf $(SRCROOT)/libraries/gettext-0.13/gettext-tools/aclocal.m4
-	rm -rf $(SRCROOT)/libraries/gettext-0.13/gettext-tools/config.h.in
-	rm -rf $(SRCROOT)/libraries/gettext-0.13/gettext-tools/configure
 	rm -rf $(SRCROOT)/libraries/pkgconfig-0.15.0/glib-1.2.8/glib.spec
 	rm -rf $(SRCROOT)/libraries/pkgconfig-0.15.0/glib-1.2.8/xconfig.cache
 	rm -rf $(SRCROOT)/libraries/pkgconfig-0.15.0/glib-1.2.8/glibconfig.h
@@ -655,3 +906,4 @@ do_copy_obj_files:
 	cd $(SRCROOT)/jabberd-src/ && find * -name \*.o -exec mkdir -p $(OBJROOT)/{} \; -exec rmdir $(OBJROOT)/{} \; -exec mv {} $(OBJROOT)/{} \;
 	cd $(SRCROOT)/libraries/ && find * -name \*.o -exec mkdir -p $(OBJROOT)/{} \; -exec rmdir $(OBJROOT)/{} \; -exec mv {} $(OBJROOT)/{} \;
 	cd $(SRCROOT)/modules/ && find * -name \*.o -exec mkdir -p $(OBJROOT)/{} \; -exec rmdir $(OBJROOT)/{} \; -exec mv {} $(OBJROOT)/{} \;
+	cd $(SRCROOT)/jabberSetup/ && find * -name \*.o -exec mkdir -p $(OBJROOT)/{} \; -exec rmdir $(OBJROOT)/{} \; -exec mv {} $(OBJROOT)/{} \;
