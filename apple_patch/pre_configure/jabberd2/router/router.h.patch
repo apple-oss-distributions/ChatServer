@@ -1,5 +1,5 @@
---- /tmp/jabberd-2.2.13/router/router.h	2011-02-23 08:24:35.000000000 -0800
-+++ ./jabberd2/router/router.h	2011-02-24 16:25:21.000000000 -0800
+--- /tmp/jabberd-2.2.17/router/router.h	2012-05-04 07:26:29.000000000 -0700
++++ ./jabberd2/router/router.h	2012-08-28 18:49:00.000000000 -0700
 @@ -93,6 +93,7 @@ struct router_st {
      int                 local_port;
      char                *local_secret;
@@ -8,29 +8,21 @@
  
      /** max file descriptors */
      int                 io_max_fds;
-@@ -155,6 +156,15 @@ struct router_st {
- 
-     /** list of routes_t waiting to be cleaned up */
-     jqueue_t            deadroutes;
-+
-+    /** message logging attributes */
-+	int message_logging_enabled;
-+	char *message_logging_dir;
-+	char *message_logging_file;
-+	char *message_logging_fullpath;
-+	int message_logging_roll_days;
-+	int message_logging_roll_megs;
-+	char *filter_muc_messages_from;
+@@ -159,6 +160,9 @@ struct router_st {
+     /** simple message logging */
+ 	int message_logging_enabled;
+ 	char *message_logging_file;
++    int message_logging_roll_days;
++    int message_logging_roll_megs;
++    char *filter_muc_messages_from;
  };
  
  /** a single component */
-@@ -227,6 +237,9 @@ int     filter_load(router_t r);
- void    filter_unload(router_t r);
+@@ -232,6 +236,7 @@ void    filter_unload(router_t r);
  int     filter_packet(router_t r, nad_t nad);
  
-+int     message_log(nad_t nad, router_t r, char *msg_from, char *msg_to);
+ int     message_log(nad_t nad, router_t r, const unsigned char *msg_from, const unsigned char *msg_to);
 +int     roll_message_log(router_t r);
-+
+ 
  void routes_free(routes_t routes);
  
- /* union for xhash_iter_get to comply with strict-alias rules for gcc3 */

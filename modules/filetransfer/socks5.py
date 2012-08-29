@@ -27,6 +27,8 @@ $Id: socks5.py 31 2007-12-21 00:08:34Z fabio.forno $
 
 from twisted.internet import protocol, reactor
 import struct
+import os
+os.environ["PYTHONHASHSEED"] = "random"
 
 STATE_INITIAL = 0
 STATE_AUTH    = 1

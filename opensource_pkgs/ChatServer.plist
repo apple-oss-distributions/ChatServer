@@ -4,15 +4,15 @@
         <key>OpenSourceProject</key>
         <string>jabberd2</string>
         <key>OpenSourceVersion</key>
-        <string>2.2.13</string>
+        <string>2.2.17</string>
         <key>OpenSourceWebsiteURL</key>
-        <string>http://jabberd2.xiaoka.com/</string>
+        <string>http://codex.xiaoka.com/wiki/jabberd2:start</string>
         <key>OpenSourceURL</key>
-        <string>http://codex.xiaoka.com/pub/jabberd2/releases/jabberd-2.2.13.tar.bz2</string>
+        <string>https://github.com/downloads/Jabberd2/jabberd2/jabberd-2.2.17.tar.xz</string>
         <key>OpenSourceSHA1</key>
-        <string>31bc6babbf5105dbb2927f46d6033c98aaa99371</string>
+        <string>2b94707e0a06d07ba0329760d308460edf0f1cd8</string>
         <key>OpenSourceImportDate</key>
-        <string>2011-02-24</string>
+        <string>2012-27-08</string>
         <key>OpenSourceModifications</key>
         <array>
             <string>A number of patches to add functionality and customize for OS X Server deployment</string>
@@ -47,15 +47,15 @@
         <key>OpenSourceProject</key>
         <string>udns</string>
         <key>OpenSourceVersion</key>
-        <string>0.0.9</string>
+        <string>0.2</string>
         <key>OpenSourceWebsiteURL</key>
         <string>http://www.corpit.ru/mjt/udns.html</string>
         <key>OpenSourceURL</key>
-        <string>http://www.corpit.ru/mjt/udns/udns_0.0.9.tar.gz</string>
+        <string>http://www.corpit.ru/mjt/udns/udns-0.2.tar.gz</string>
         <key>OpenSourceSHA1</key>
-        <string>9792ac12619d23d3086f960561428238c41a25e0</string>
+        <string>416da8c95283eae45f6d2e6fb055c4ef765a3f02</string>
         <key>OpenSourceImportDate</key>
-        <string>2009-11-04</string>
+        <string>2012-03-23</string>
         <key>OpenSourceModifications</key>
         <array/>
         <key>OpenSourceLicense</key>

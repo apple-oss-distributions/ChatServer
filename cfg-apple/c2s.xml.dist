@@ -66,6 +66,11 @@
     <!--
     <file>/usr/var/jabberd/log/c2s.log</file>
     -->
+
+    <!-- Filename of the debug logfile -->
+    <!--
+    <debug>/usr/var/jabberd/log/debug-${id}.log</debug>
+    -->
   </log>
 
   <!-- Local network configuration -->
@@ -104,20 +109,20 @@
          private-key-password
          Password for decrypting the pemfile's private key, if encrypted
 
+         verify-mode
+         SSL verify mode - see SSL_CTX_set_verify(3), mode parameter.
+         Sum of the following options:
+         SSL_VERIFY_NONE                 0x00
+		 SSL_VERIFY_PEER                 0x01
+		 SSL_VERIFY_FAIL_IF_NO_PEER_CERT 0x02
+		 SSL_VERIFY_CLIENT_ONCE          0x04
+		 Use 7 to require all clients to present _valid_ certificates.
+
+     
          cachain
-          SSL CA chain. Used to verify client certificates. 
-          CA names published to client upon connection.
-
-          verify-mode
-          SSL verify mode - see SSL_CTX_set_verify(3), mode parameter.
-          Sum of the following options:
-          SSL_VERIFY_NONE                 0x00
- 		 SSL_VERIFY_PEER                 0x01
- 		 SSL_VERIFY_FAIL_IF_NO_PEER_CERT 0x02
- 		 SSL_VERIFY_CLIENT_ONCE          0x04
- 		 Use 7 to require all clients to present _valid_ certificates.
-
-
+         SSL CA chain. Used to verify client certificates. 
+         CA names published to client upon connection.
+          
          require-starttls
          If this attribute is set to any value, clients must do STARTTLS
          before they can authenticate. Until the stream is encrypted,
@@ -140,18 +145,20 @@
          you want this, add this attribute with any value, when you need
          registration disabled.
           -->
+    <!-- <id register-enable='mu'>localhost.localdomain</id> -->
     <!-- or
     <id realm='company.int'
         pemfile='/etc/jabberd/server.pem'
         verify-mode='7'
-        require-starttls='true'
-        register-enable='true'
+        cachain='/etc/jabberd/client_ca_certs.pem'
+        require-starttls='mu'
+        register-enable='mu'
         instructions='Enter a username and password to register with this server.'
         register-oob='http://example.org/register'
-        password-change='true'
+        password-change='mu'
     >example.net</id> -->
     <!-- or the default host
-    <id password-change='true' /> -->
+    <id password-change='mu' /> -->
     <id>@HOSTNAME@</id>
 
     <!-- IP address to bind to (default: 0.0.0.0) -->
@@ -184,13 +191,13 @@
     <!-- Password for private key if key in pemfile is encrypted -->
     <!--<private_key_password/>-->
 
-    <!-- Alternate certificate chain file for local pemfile -->
-    <!--<cachain/>-->
-
     <!-- SSL verify mode - see SSL_CTX_set_verify(3), mode parameter -->
     <!--
     <verify-mode>7</verify-mode>
     -->
+    
+    <!-- SSL CA chain. Used to verify client certificates. CA names published to client upon connection -->
+    <!--<cachain/>-->
 
     <!-- Forward incoming HTTP clients to a real HTTP server -->
     <!--
@@ -343,22 +350,29 @@
     <!--
     <pipe>/usr/var/jabberd/run/pbx</pipe>
     -->
+    <!-- Available commands:
+          START jid/resource [[priority ]status] [description]
+          STOP jid/resource [description]
+          where priority is integer between -128 and +127
+          and status is one of: CHAT, ONLINE, DND, AWAY, XA
+    -->
   </pbx>
 
-  <!-- see-other-host mappings -->
+  <!-- see-other-host error stream redirection support
+       This will redirect connections to specified domains to other host:port
+       Usefull when migrating service and DNS change did not propagate yet.
+       Note that to_address should be RFC 3986 compliant. -->
   <stream_redirect>
-    <!-- Return a see-other-host stream error when clients from requested_domain attempt
-         to initiate a stream with c2s.  to_address should be RFC 3986 compliant. -->
     <!--
-    <redirect requested_domain="chat.example.com" to_address="chat1.example.com" to_port="5222"/>
-    <redirect requested_domain="chat_ssl.example.com" to_address="[2001:41D0:1:A49b::1]" to_port="5223"/>
+    <redirect requested_domain="some.domain" to_address="other.hostname" to_port="5269" />
+    <redirect requested_domain="other.domain" to_address="other.host" to_port="1234" />
     -->
   </stream_redirect>
 
   <!-- Authentication/registration database configuration -->
   <authreg>
     <!-- Dynamic authreg modules path -->
-    <path>/var/jabberd/modules/jabberd2</path>
+    <path>@SERVERROOT@/usr/libexec/jabberd/modules</path>
 
     <!-- Backend module to use -->
     <module>apple_od</module>
@@ -384,12 +398,11 @@
            module does not support one of these mechanisms, then it will
            not be offered. -->
       <sasl>
-       <gssapi/>
+        <gssapi/>
         <digest-md5/>
         <!--
         <plain/>
         <anonymous/>
-        <external/>
         -->
       </sasl>
 
@@ -408,6 +421,9 @@
 
       <sasl>
         <plain/>
+        <!--
+        <external/>
+        -->
       </sasl>
 
     </ssl-mechanisms>
@@ -418,7 +434,7 @@
     <!-- SQLite driver configuration -->
     <sqlite>
       <!-- Database name -->
-      <dbname>/Library/Server/iChat/Data/sqlite/jabberd2.db</dbname>
+      <dbname>/Library/Server/Messages/Data/sqlite/jabberd2.db</dbname>
 
       <!-- Transacation support. If this is commented out, transactions
            will be disabled. This might make database accesses faster,
@@ -452,6 +468,10 @@
         <plaintext/>
         <!-- use crypt(3)ed passwords
         <crypt/>
+        -->
+        <!-- use A1HASH passwords
+		     This stores the MD5 digest of user:realm:password in the database
+        <a1hash/>
         -->
       </password_type>
     </mysql>
@@ -637,7 +657,7 @@
     <!-- Pipe module configuration -->
     <pipe>
       <!-- Program to execute -->
-      <exec>/usr/bin/pipe-auth.pl</exec>
+      <exec>/Applications/Server.app/Contents/ServerRoot/usr/libexec/jabberd/pipe-auth.pl</exec>
     </pipe>
 
   </authreg>

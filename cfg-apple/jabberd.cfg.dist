@@ -12,7 +12,7 @@
 # program   [ path to config file ]
 #
 
-router      /etc/jabberd/router.xml
-sm          /etc/jabberd/sm.xml
-s2s         /etc/jabberd/s2s.xml
-c2s         /etc/jabberd/c2s.xml
+router      /Library/Server/Messages/Config/jabberd/router.xml
+sm          /Library/Server/Messages/Config/jabberd/sm.xml
+s2s         /Library/Server/Messages/Config/jabberd/s2s.xml
+c2s         /Library/Server/Messages/Config/jabberd/c2s.xml

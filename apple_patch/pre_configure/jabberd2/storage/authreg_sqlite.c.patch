@@ -1,0 +1,11 @@
+--- /tmp/jabberd-2.2.17/storage/authreg_sqlite.c	2011-10-22 12:56:00.000000000 -0700
++++ ./jabberd2/storage/authreg_sqlite.c	2012-08-28 18:49:00.000000000 -0700
+@@ -48,7 +48,7 @@ _get_stmt(authreg_t ar, sqlite3 *db, sql
+ {
+     int res;
+     if (*stmt == NULL) {
+-	res = sqlite3_prepare(db, sql, -1, stmt, 0);
++	res = sqlite3_prepare_v2(db, sql, -1, stmt, 0);
+ 	if (res != SQLITE_OK) {
+ 	    log_write(ar->c2s->log, LOG_ERR, "sqlite (authreg): %s", sqlite3_errmsg(db));
+ 	    return NULL;

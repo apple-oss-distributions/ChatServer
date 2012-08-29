@@ -80,11 +80,13 @@
 #      env MUC_USER="admin" MUC_PASS="let_me_in" ruby muc_room_config.rb -o chatserver.example.com -r my_room -i bob@chatserver.example.com alice@chatserver.example.com
 #      env MUC_USER="admin" MUC_PASS="let_me_in" ./muc_room_config.rb -o chatserver.example.com -r my_room -d
 #
-# == Author
-# Joel Hedden (jhedden@apple.com)
-#
 # == Copyright
-# Copyright 2007-2009 Apple Inc. All rights reserved.
+# Copyright (c) 2007-2012 Apple Inc. All Rights Reserved.
+#
+# IMPORTANT NOTE: This file is licensed only for use on Apple-branded
+# computers and is subject to the terms and conditions of the Apple Software
+# License Agreement accompanying the package this file is a part of.
+# You may not port this file to another platform without Apple's written consent.
 #
 # == State
 # Functional, unfinished

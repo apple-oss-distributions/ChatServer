@@ -20,28 +20,12 @@
     <!--
     <file>/usr/var/jabberd/log/router.log</file>
     -->
+
+    <!-- Filename of the debug logfile -->
+    <!--
+    <debug>/usr/var/jabberd/log/debug-${id}.log</debug>
+    -->
   </log>
-
-  <!-- If enabled (set to "1"), this turns on message logging to a flat file. -->
-  <message_logging_enabled>0</message_logging_enabled>
-
-  <!-- If message logging is enabled, what directory to log to -->
-  <message_logging_dir>/Library/Server/iChat/Data/message_archives</message_logging_dir>
-
-  <!-- If message logging is enabled, what filename to log to -->
-  <message_logging_file>jabberd_user_messages.log</message_logging_file>
-
-  <!-- If message logging is enabled, how often to roll logs (days) (0 to disable) -->
-  <message_logging_roll_days>7</message_logging_roll_days>
-
-  <!-- If message logging is enabled, roll logs if they get larger than this (megabytes) (0 to disable) -->
-  <message_logging_roll_megs>256</message_logging_roll_megs>
-
-  <!-- If defined, any message sent from this component name will not
-        be logged.  The purpose of this preference is to prevent router from logging multiple copies
-        of messages sent to MUC chat rooms.  To prevent the logging of duplicates, this preference should
-        match your MUC component's name.  Messages sent to MUC will still be logged.  -->
-  <filter_muc_messages_from>rooms.@HOSTNAME@</filter_muc_messages_from>
 
   <!-- Local network configuration -->
   <local>
@@ -54,7 +38,7 @@
     <!-- File containing the user table. This is where the router gets
          its component and secret information from for component
          authentication.-->
-    <users>/private/etc/jabberd/router-users.xml</users>
+    <users>/Library/Server/Messages/Config/jabberd/router-users.xml</users>
 
     <!-- Shared secret used to identify XEP-0114 components (that is,
          "jabber:component:accept" components that authenticate using
@@ -213,10 +197,28 @@
 
     <!-- File containing packet filter rules.
          May be used for fine grained packet routing control. -->
-    <!-- <filter>/private/etc/jabberd/router-filter.xml</filter> -->
+    <!-- <filter>/Library/Server/Messages/Config/jabberd/router-filter.xml</filter> -->
 
   </aci>
 
+  <!-- Simple message logging to flat file
+       Remove <enabled/> tag to disable logging -->
+  <message_logging>
+    <!--<enabled/>-->
+    <file>/Library/Server/Messages/Data/message_archives/jabberd_user_messages.log</file>
+
+    <!-- If message logging is enabled, how often to roll logs (days) (0 to disable) -->
+    <log_roll_days>7</log_roll_days>
+
+    <!-- If message logging is enabled, roll logs if they get larger than this (megabytes) (0 to disable) -->
+    <log_roll_megs>256</log_roll_megs>
+
+    <!-- If defined, any message sent from this component name will not
+        be logged.  The purpose of this preference is to prevent router from logging multiple copies
+        of messages sent to MUC chat rooms.  To prevent the logging of duplicates, this preference should
+        match your MUC component's name.  Messages sent to MUC will still be logged.  -->
+    <filter_muc_messages_from>rooms.@HOSTNAME@</filter_muc_messages_from>
+  </message_logging>
 </router>
 <!--
   vim: syntax=xml

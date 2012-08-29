@@ -63,6 +63,11 @@
     <!--
     <file>/usr/var/jabberd/log/sm.log</file>
     -->
+
+    <!-- Filename of the debug logfile -->
+    <!--
+    <debug>/usr/var/jabberd/log/debug-${id}.log</debug>
+    -->
   </log>
 
   <!-- Local network configuration -->
@@ -83,7 +88,7 @@
   <!-- Storage database configuration -->
   <storage>
     <!-- Dynamic storage modules path -->
-    <path>/var/jabberd/modules/jabberd2</path>
+    <path>@SERVERROOT@/usr/libexec/jabberd/modules</path>
 
     <!-- By default, we use the SQLite driver for all storage -->
     <driver>sqlite</driver>
@@ -112,10 +117,24 @@
     <driver type='published-roster-groups'>ldapvcard</driver>
     -->
 
+    <!-- Rate limiting -->
+    <limits>
+      <!-- Maximum bytes per second - if more than X bytes are sent in Y
+           seconds, connection is throttled for Z seconds. The format
+           is:
+
+             <bytes seconds='Y' throttle='Z'>X</bytes>
+
+           Default Y is 5, default Z is 60. set X to 0 to disable. -->
+      <!--
+      <queries>3</queries>
+      -->
+    </limits>
+
     <!-- SQLite driver configuration -->
     <sqlite>
       <!-- Database name -->
-      <dbname>/Library/Server/iChat/Data/sqlite/jabberd2.db</dbname>
+      <dbname>/Library/Server/Messages/Data/sqlite/jabberd2.db</dbname>
 
       <!-- Transacation support. If this is commented out, transactions
            will be disabled. This might make database accesses faster,
@@ -252,6 +271,15 @@
       <groupattr>jabberPublishedGroup</groupattr>
       -->
 
+      <!-- this option is helpful if your schema does not have designated
+	       attribute that holds jabber group name
+		   you can use any attribute in <groupattr> i.e. 'distinguishedName'
+		   and then extract a part of it using Regular Expression;
+           first matching () group will be used -->
+      <!--
+      <groupattr_regex>OU=([^,]*),</groupattr_regex>
+      -->
+
       <!-- boolean attribute that tells, publish or not this user
            jabberPublishedItem by default -->
       <!--
@@ -290,27 +318,15 @@
         -->
       </mapped-groups>
     </ldapvcard>
-    <limits>
-      <!-- Maximum database queries per second, per user - if more than X queries are
-           triggered by a single user in Y seconds, that user is disconnected, and throttled
-           for Z seconds. A database query attempt during the throttle period will result
-           in the user being disconnected again.
-           NOTE: Only applies to roster-groups and vcard operations at the present.
-           The format is:
-
-             <queries seconds='Y' throttle='Z'>X</queries>
-
-           Default Y is ?, default Z is ?. set X to 0 to disable. -->
-      <!-- <queries seconds='20' throttle='160'>300</queries> -->
-      <queries seconds='20' throttle='160'>0</queries>
-    </limits>
   </storage>
 
   <!-- Access control information -->
   <aci>
     <!-- The JIDs listed here will get access to all restricted
          functions, regardless of restrictions further down -->
-    <!--<acl type='all'><jid>admin@localhost.localdomain</jid></acl>-->
+    <acl type='all'>
+      <!--<jid>admin@localhost.localdomain</jid>-->
+    </acl>
 
     <!-- These JIDs can send broadcast messages (announce, motd) -->
     <!--
@@ -334,17 +350,6 @@
       <jid>webstatus@localhost.localdomain</jid>
     </acl>
     -->
-  <!-- Apple: mod_deliver masquerading for message sender.  Intended for use with
-       Apple Notification server's cluster client connections.
-       Messages from JIDs listed in the 'masquerade_sender' ACL will have the masq_sender_replacement value
-       inserted into the 'from' attribute for the outgoing message, instead of the sender's actual JID.  -->
-  <!-- Example:
-    <masq_sender_replacement>pubsub.hostname.example.com</masq_sender_replacement>
-    <acl type='masquerade_sender'>
-        <jid>pubsub1@hostname.example.com</jid>
-        <jid>pubsub2@hostname.example.com</jid>
-    </acl>
-  -->
   </aci>
 
   <!-- Module chain configuration
@@ -363,7 +368,7 @@
        doing. -->
   <modules>
     <!-- Dynamic sm modules path -->
-    <path>/var/jabberd/modules/jabberd2</path>
+    <path>@SERVERROOT@/usr/libexec/jabberd/modules</path>
 
     <!-- sess-start. The modules in this chain are called when a session
          is first started (usually on request by c2s as part of the
@@ -480,6 +485,11 @@
       <module>vacation</module>         <!-- load vacation settings -->
     </chain>
 
+    <!-- user-unload. The modules in this chain are called right
+         after last per-user session is destroyed. -->
+    <chain id='user-unload'>
+    </chain>
+
     <!-- user-create. The modules in this chain are called when a user
          creation request is received (usually from c2s as part of a
          registration request). This initialises any per-user data. -->
@@ -508,8 +518,8 @@
 
     <!-- disco-extend. The modules in this chain are called when a disco
          info request is send to session manager. It implements XEP-0128
-	 Service Discovery Extensions mechanizm to add additional
-	 information to disco#info reply. -->
+     Service Discovery Extensions mechanizm to add additional
+     information to disco#info reply. -->
     <chain id='disco-extend'>
       <module>iq-version</module>       <!-- add XEP-xxxx Software Information -->
       <module>help</module>             <!-- add XEP-0157 Contact Addresses -->
@@ -604,7 +614,6 @@
     <!-- Define maximum size in bytes of fields of vcards.
          There is a recommendation that the avatar picture SHOULD NOT
          be larger than 16 KiB. --> 
-
     <vcard>
         <max-field-size>
             <default>32768</default>
@@ -630,11 +639,19 @@
           <fixed>grouping-key</fixed>
         </fetch-key>
         -->
-        <!-- If <check-remove-domain> given, then published contact checked
-               against sm user database and if user is unknown to sm, contact
-               will be deleted from user's roster (if it is in roster). -->
+        <!-- If <check-remove-domain> given, then published contact is checked
+             against sm user database and if user is unknown to sm, contact
+             will be deleted from user's roster (if it is in roster).
+			 If no domain set (tag empty) all contacts are checked. -->
         <!--
         <check-remove-domain>jabber.example.com</check-remove-domain>
+        -->
+        <!-- Alternatively if <force-create-contacts/> is not commented,
+		     published contact is added to sm user database
+			 and user set known to sm, so it won't auto-unsubscribe
+			 on connection extablished -->
+        <!--
+        <force-create-contacts/>
         -->
         <!-- Keep cache of "active" database specified number of seconds.
              This will significantly speed up publishing of roster.
@@ -696,9 +713,9 @@
       </publish>
       -->
 
-       <!-- If defined, the contents of these files will be
-            stored in the users data store when they are created. -->
-       <!-- If you defined publish, you should comment-out <roster> -->
+      <!-- If defined, the contents of these files will be
+           stored in the users data store when they are created. -->
+      <!-- If you defined publish, you should comment-out <roster> -->
       <!--
       <roster>/etc/jabberd/templates/roster.xml</roster>
       -->
@@ -772,13 +789,6 @@
     <resource>webstatus</resource>
     -->
   </status>
-
-  <!-- Apple: mod_deliver: For Notification server support,
-       If defined, the component specified will be an exception to the rules
-       for message sending.  Messages sent from this component, with no resource specified
-       in the "to" attribute, will be duplicated to all sessions matching the "to" JID. -->
-
-    <!--<apple_notification_component_addr>pubsub.@HOSTNAME@</apple_notification_component_addr>-->
 
 </sm>
 <!--

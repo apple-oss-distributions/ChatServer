@@ -1,14 +1,20 @@
 #!/usr/bin/perl -w
-# Copyright 2010 Apple Inc. All rights reserved.
-## Migration Script for iChat Server
+# Copyright (c) 2010-2012 Apple Inc. All Rights Reserved.
+#
+# IMPORTANT NOTE: This file is licensed only for use on Apple-branded
+# computers and is subject to the terms and conditions of the Apple Software
+# License Agreement accompanying the package this file is a part of.
+# You may not port this file to another platform without Apple's written consent.
+
+## Migration Script for Message Server
 
 ##################   Input Parameters  #######################
 # --purge <0 | 1>	"1" means remove any files from the old system after you've migrated them, "0" means leave them alone.
 # --sourceRoot <path>	The path to the root of the system to migrate
 # --sourceType <System | TimeMachine>	Gives the type of the migration source, whether it's a runnable system or a 
 #                                       Time Machine backup.
-# --sourceVersion <ver>	The version number of the old system (like 10.5.x or 10.6). Since we support migration from 10.5, 
-#                       10.6, and other 10.7 installs, it's useful to know this information, and it would be easier for me to figure 
+# --sourceVersion <ver>	The version number of the old system (like 10.6.x or 10.7). Since we support migration from 10.6, 
+#                       10.7, and other 10.8 installs, it's useful to know this information, and it would be easier for me to figure 
 #                       it out once and pass it on to each script than to have each script have to figure it out itself.
 # --targetRoot <path>	The path to the root of the new system. Pretty much always "/"
 # --language <lang> A language identifier, such as \"en.\" Long running scripts should return a description of what they're doing
@@ -18,8 +24,17 @@
 #                   send them in English, but in case the script will do this it will need this identifier.
 
 BEGIN {
-	push @INC,"/System/Library/ServerSetup/MigrationExtras/";
+	if ( -e "/Applications/Server.app/Contents/ServerRoot/System/Library/ServerSetup/MigrationExtras/" ) {
+		push @INC,"/Applications/Server.app/Contents/ServerRoot/System/Library/ServerSetup/MigrationExtras/";
+	}
+	elsif ( -e "/System/Library/ServerSetup/MigrationExtras/" ) {
+		push @INC,"/System/Library/ServerSetup/MigrationExtras/";
+	}
+	else {
+		print "Server Migration perl lib can not be found.\n";
+	}
 }
+
 use MigrationUtilities;
 use strict;
 use warnings;
@@ -32,12 +47,11 @@ my $DSCL = "/usr/bin/dscl";
 my $DU = "/usr/bin/du";
 my $ECHO = "/bin/echo";
 my $GREP = "/usr/bin/grep";
-my $LAUNCHCTL = "/bin/launchctl";
 my $MKDIR = "/bin/mkdir";
 my $MV = "/bin/mv";
 my $PLISTBUDDY = "/usr/libexec/PlistBuddy";
-my $SERVERADMIN="/usr/sbin/serveradmin";
-my $MUC_TO_ROOMS_DATA_MIGRATOR="/usr/libexec/jabberd/MucDataMigrator";
+my $SERVERADMIN="/Applications/Server.app/Contents/ServerRoot/usr/sbin/serveradmin";
+my $MUC_TO_ROOMS_DATA_MIGRATOR="/Applications/Server.app/Contents/ServerRoot/usr/libexec/jabberd/MucDataMigrator";
 my $SQLITE3 = "/usr/bin/sqlite3";
 
 ################################## Consts ###################################
@@ -50,23 +64,25 @@ my $g_admin_gid = getgrnam($g_admin_group);
 my $g_service_name = "jabber";
 
 #################################   PATHS  #################################
-my $g_migration_script_path = "/usr/libexec";
+my $g_migration_script_path = "/Applications/Server.app/Contents/ServerRoot/usr/libexec";
 my $g_jabber_config_migrator = $g_migration_script_path."/jabber_config_migrator.pl";
-my $g_jabber_data_migrator_pre_10_7 = $g_migration_script_path."/jabber_data_migrate_2.0-2.1.pl";
+my $g_jabber_data_migrator_pre_10_7 = $g_migration_script_path."/jabber_data_migrate_2.0-2.2.pl";
 my $g_migration_log_dir = "/Library/Logs/Migration";
 my $g_log_path = $g_migration_log_dir."/jabbermigrator.log";
 my $g_shared_log_path = "/Library/Logs/Setup.log";
-my $g_sqlite_db_path_pre_10_7 = "/private/var/jabberd/sqlite/jabberd2.db";
-my $g_sqlite_db_path = "/Library/Server/iChat/Data/sqlite/jabberd2.db";
-my $g_bundle_config_path = "/Library/Preferences/com.apple.ichatserver.plist";
+my $g_sqlite_db_path_10_6 = "/private/var/jabberd/sqlite/jabberd2.db";
+my $g_sqlite_db_path_10_7 = "/Library/Server/iChat/Data/sqlite/jabberd2.db";
+my $g_sqlite_db_path = "/Library/Server/Messages/Data/sqlite/jabberd2.db";
+my $g_bundle_config_path_pre_10_8 = "/Library/Preferences/com.apple.ichatserver.plist";
+my $g_bundle_config_path = "/Library/Preferences/com.apple.messageserver.plist";
 my $g_system_plist_path = "/System/Library/CoreServices/SystemVersion.plist";
 my $g_server_plist_path = "/System/Library/CoreServices/ServerVersion.plist";
-my $g_launchd_config_path_jabberd = "/System/Library/LaunchDaemons/org.jabber.jabberd.plist";
-my $g_launchd_config_path_proxy65 = "/System/Library/LaunchDaemons/org.jabber.proxy65.plist";
+my $g_launchd_config_path_jabberd = "/Applications/Server.app/Contents/ServerRoot/System/Library/LaunchDaemons/org.jabber.jabberd.plist";
+my $g_launchd_config_path_proxy65 = "/Applications/Server.app/Contents/ServerRoot/System/Library/LaunchDaemons/org.jabber.proxy65.plist";
 my $g_launchd_overrides_path = "/private/var/db/launchd.db/com.apple.launchd/overrides.plist";
-my $g_rooms_home_sites_path = "/private/var/jabberd/ChatHome/Sites";
-my $g_rooms_fsstore_path = "/Library/Server/iChat/Data/fsstore";
-my $g_rooms_configs_path = "/private/var/jabberd/Rooms";
+my $g_rooms_configs_path_10_7 = "/private/var/jabberd/Rooms";
+my $g_rooms_configs_path = "/Library/Server/Messages/Data/Rooms";
+my $g_initialize_script_path = "/Applications/Server.app/Contents/ServerRoot/usr/libexec/copy_message_server_config_files.sh";
 
 #################################  GLOBALS #################################
 my $g_purge = "0";		# Default is don't purge
@@ -84,16 +100,16 @@ my $DEBUG = 0;
 my $FUNC_LOG = 0;
 
 ############################## Version Consts  ##############################
-my $SYS_VERS = "0";   #10.5.x
+my $SYS_VERS = "0";   #10.6.x
 my $SYS_MAJOR = "0";  #10
-my $SYS_MINOR = "0";  # 5
+my $SYS_MINOR = "0";  # 6
 my $SYS_UPDATE = "-"; #11
-my $SRV_VERS = "0";   #10.5.x
+my $SRV_VERS = "0";   #10.6.x
 my $SRV_MAJOR = "0";  #10
-my $SRV_MINOR = "0";  # 5
-my $SRV_UPDATE = "-"; #11
-my $MINVER = "10.5";  # => 10.5
-my $MAXVER = "10.7";  # <  10.7
+my $SRV_MINOR = "0";  # 6
+my $SRV_UPDATE = "-"; #8
+my $MINVER = "10.6";  # => 10.6
+my $MAXVER = "10.8";  # <  10.8
 
 if ( (defined($ENV{DEBUG})) && ($ENV{DEBUG} eq 1) ) {$DEBUG = '1';}
 if ( (defined($ENV{FUNC_LOG})) && ($ENV{FUNC_LOG} eq 1) ) {$FUNC_LOG = '1';}
@@ -149,30 +165,33 @@ sub get_service_state
 	&log_message("get_service_state := S");
 	
 	my $src_root = shift;
-	my $state;
+	my $state_disabled;
 	if (! defined($src_root)) {
 		$src_root = "";
 	}
 	if (-e "$src_root$g_launchd_overrides_path") {
-		$state = qx(${PLISTBUDDY} -c "Print :org.jabber.jabberd:Disabled" "${src_root}${g_launchd_overrides_path}");
-		chomp($state);
-		if ($state eq "" || $state =~ /Does Not Exist/) {
+		$state_disabled = qx(${PLISTBUDDY} -c "Print :org.jabber.jabberd:Disabled" "${src_root}${g_launchd_overrides_path}");
+		chomp($state_disabled);
+		if ($state_disabled eq "" || $state_disabled =~ /Does Not Exist/) {
 			# missing entry, treat as disabled
-			$state = "true";
+			$state_disabled = "true";
+		}
+	} elsif (-e "$src_root$g_launchd_config_path_jabberd") {
+		$state_disabled = qx(${PLISTBUDDY} -c "Print :Disabled" "${src_root}${g_launchd_config_path_jabberd}");
+		chomp($state_disabled);
+		if ($state_disabled eq "" || $state_disabled =~ /Does Not Exist/) {
+			# missing entry, treat as disabled
+			$state_disabled = "true";
 		}
 	} else {
-		$state = qx(${PLISTBUDDY} -c "Print :Disabled" "${src_root}${g_launchd_config_path_jabberd}");
-		chomp($state);
-		if ($state ne "true") {
-			$state = "false";
-		}
+		$state_disabled = "true";
 	}
 
 	if ($FUNC_LOG) {printf("get_service_state := E\n");}
 	&log_message("get_service_state := E");
-	if ($DEBUG) { &log_message("DEBUG get_service_state returning $state"); }
+	if ($DEBUG) { &log_message("DEBUG get_service_state returning $state_disabled"); }
 
-	return $state;
+	return $state_disabled;
 }
 
 ################################################################################
@@ -186,84 +205,102 @@ sub restore_and_set_state()
 		exit(1);
 	}
 
-	my $ichat_disabled_orig = &get_service_state($g_source_root);
-	&log_message("restore_and_set_state: source volume has Disabled = ${ichat_disabled_orig}");
+	my $message_server_disabled_orig = &get_service_state($g_source_root);
+	&log_message("restore_and_set_state: source volume has Disabled = ${message_server_disabled_orig}");
 	
 	# Make sure that the service at destination has been initialized
-	unless (&ensure_ichat_initialized) {
+	unless (&ensure_message_server_initialized) {
 		&log_message("Cannot initialize service, aborting");
 		exit(1);
 	}
 
 	# Get current state, disable the service if not already disabled
-	my $ichat_disabled = &get_service_state;
+	my $message_server_disabled = &get_service_state;
 
-	if ($ichat_disabled ne "true") {
-		$ichat_disabled = "false";
-		&start_stop_ichat("stop");  # disable the service
+	if ($message_server_disabled ne "true") {
+		$message_server_disabled = "false";
+		&start_stop_message_server("stop");  # disable the service
 	}
 
 	my $ret;
 
-	if(${SRV_MINOR} eq "6" || ${SRV_MINOR} eq "7") {
-		#10.6,10.7 -> 10.7 migration
-		# Configs
-		if ($DEBUG) {
+	#10.6,10.7,10.8 -> 10.8 migration
+	# Configs
+	if ($DEBUG) {
+		if (${SRV_MINOR} eq "6" || ${SRV_MINOR} eq "7") {
+			$ret = qx (${g_jabber_config_migrator} -d -c "${g_source_root}${g_bundle_config_path_pre_10_8}" -s "${g_source_version}");
+		} else {
 			$ret = qx (${g_jabber_config_migrator} -d -c "${g_source_root}${g_bundle_config_path}" -s "${g_source_version}");
+		}
+	} else {
+		if (${SRV_MINOR} eq "6" || ${SRV_MINOR} eq "7") {
+			$ret = qx (${g_jabber_config_migrator} -c "${g_source_root}${g_bundle_config_path_pre_10_8}" -s "${g_source_version}");
 		} else {
 			$ret = qx (${g_jabber_config_migrator} -c "${g_source_root}${g_bundle_config_path}" -s "${g_source_version}");
 		}
-		if ($? != 0) {
-			&log_message("Warning, ${g_jabber_config_migrator} returned error status: $?: $ret");
+	}
+	if ($? != 0) {
+		&log_message("Warning, ${g_jabber_config_migrator} returned error status: $?: $ret");
+	}
+	# Data
+	# If a data location is specified in the configuration, look there
+	do {{  # not a loop
+		my $src_database_location;
+		if (${SRV_MINOR} eq "6" || ${SRV_MINOR} eq "7") {
+			$src_database_location = qx(${PLISTBUDDY} -c "Print :jabberdDatabasePath" "${g_source_root}${g_bundle_config_path_pre_10_8}");
+		} else {
+			$src_database_location = qx(${PLISTBUDDY} -c "Print :jabberdDatabasePath" "${g_source_root}${g_bundle_config_path}");
 		}
-		# Data
-		# If a custom data location is specified in the configuration, look there
-		do {{  # not a loop
-			my $src_database_location = qx(${PLISTBUDDY} -c "Print :jabberdDatabasePath" "${g_source_root}${g_bundle_config_path}");
-			chomp($src_database_location);
-			if ($src_database_location =~ /Does Not Exist/) {
-				if (${SRV_MINOR} eq "6") {
-					$src_database_location = $g_sqlite_db_path;
-				} else {
-					$src_database_location = $g_sqlite_db_path_pre_10_7;
-				}
-			} elsif ($src_database_location !~ /^\/Volumes\//) {
-				# The path may or may not be on the source root volume
-				$src_database_location = "${g_source_root}${src_database_location}";
-			}	
-			# Make sure source and target are different files
-			my $inode_source = (stat($src_database_location))[1];
-			my $inode_dst = (stat("${g_target_root}${g_sqlite_db_path}"))[1];
-			if (($inode_source != $inode_dst) || ($g_target_root ne $g_source_root)) {
-				my $mask = umask;
-				umask(027);
-				$ret = qx ( $MV -f "${g_target_root}${g_sqlite_db_path}" "${g_target_root}${g_sqlite_db_path}.bak");
-				if ($? != 0) {
-					&log_message("Warning, backup of original database failed $?: $ret");
-				}
-				$ret = qx ($CP -v "${src_database_location}" "${g_target_root}${g_sqlite_db_path}");
-				if ($? != 0) {
-					&log_message("Error, cannot create new database $?: $ret");
-				}
-				$ret = chown($g_jabber_uid, $g_jabber_gid, "${g_target_root}${g_sqlite_db_path}");
-				unless ($ret) {
-					&log_message("Error, chown failed with status $ret: $!");
-				}
-				$ret = chmod(0640, "${g_target_root}${g_sqlite_db_path}");
-				unless ($ret) {
-					&log_message("Error, chmod failed with status $ret: $!");
-				}
-				umask($mask);
-			}
-			# For upgrades from 10.6, add new tables for jabberd 2.2.x compatibility
+		chomp($src_database_location);
+		if ($src_database_location =~ /Does Not Exist/) {
 			if (${SRV_MINOR} eq "6") {
-				$ret = open(SQLITE, "|$SQLITE3 \"${g_target_root}${g_sqlite_db_path}\"");
-				unless ($ret) {
-					&log_message("Error, could not open database file \"${g_target_root}${g_sqlite_db_path}\" using $SQLITE3 : $!");
-					last;
-				}
-				# lifted from jabberd 2.2.11, tools/db-setup.sqlite, diff from jabberd 2.1.24.
-				print SQLITE <<"EOF";
+				$src_database_location = $g_sqlite_db_path_10_6;
+			} elsif (${SRV_MINOR} eq "7") {
+				$src_database_location = $g_sqlite_db_path_10_7;
+			} else {
+				$src_database_location = $g_sqlite_db_path;
+			}
+		} elsif ($src_database_location !~ /^\/Volumes\//) {
+			# The path may or may not be on the source root volume
+			$src_database_location = "${g_source_root}${src_database_location}";
+		}	
+		# Make sure source and target are different files
+		my $inode_source = (stat($src_database_location))[1];
+		my $effective_target_root = $g_target_root;
+		if ($g_target_root eq "/") {
+			$effective_target_root = "";
+		}
+		my $inode_dst = (stat("${effective_target_root}${g_sqlite_db_path}"))[1];
+		if (($inode_source != $inode_dst) || ($effective_target_root ne $g_source_root)) {
+			my $mask = umask;
+			umask(027);
+			$ret = qx ( $MV -f "${effective_target_root}${g_sqlite_db_path}" "${effective_target_root}${g_sqlite_db_path}.bak");
+			if ($? != 0) {
+				&log_message("Warning, backup of original database failed $?: $ret");
+			}
+			$ret = qx ($CP -v "${src_database_location}" "${effective_target_root}${g_sqlite_db_path}");
+			if ($? != 0) {
+				&log_message("Error, cannot create new database $?: $ret");
+			}
+			$ret = chown($g_jabber_uid, $g_jabber_gid, "${effective_target_root}${g_sqlite_db_path}");
+			unless ($ret) {
+				&log_message("Error, chown failed with status $ret: $!");
+			}
+			$ret = chmod(0640, "${effective_target_root}${g_sqlite_db_path}");
+			unless ($ret) {
+				&log_message("Error, chmod failed with status $ret: $!");
+			}
+			umask($mask);
+		}
+		# For upgrades from 10.6, add new tables for jabberd 2.2.x compatibility
+		if (${SRV_MINOR} eq "6") {
+			$ret = open(SQLITE, "|$SQLITE3 \"${effective_target_root}${g_sqlite_db_path}\"");
+			unless ($ret) {
+				&log_message("Error, could not open database file \"${effective_target_root}${g_sqlite_db_path}\" using $SQLITE3 : $!");
+				last;
+			}
+			# lifted from jabberd 2.2.11, tools/db-setup.sqlite, diff from jabberd 2.1.24.
+			print SQLITE <<"EOF";
 CREATE TABLE "published-roster" (
     "collection-owner" TEXT NOT NULL,
     "object-sequence" INTEGER PRIMARY KEY,
@@ -280,38 +317,19 @@ CREATE TABLE "published-roster-groups" (
     "groupname" TEXT NOT NULL );
 CREATE INDEX i_pubrosterg_owner ON "published-roster-groups"("collection-owner");
 EOF
-				close(SQLITE) || &log_message("Error, $SQLITE3 returned an error.  Adding new tables to jabberd database possibly failed.");
-			}
-		}} while (0);  # not a loop
-
-	} elsif(${SRV_MINOR} eq "5") {
-		#10.5 -> 10.7 migration
-		# Configs
-		if ($DEBUG) {
-			$ret = qx (${g_jabber_config_migrator} -d -c "${g_source_root}${g_bundle_config_path}" -s "${g_source_version}");
-		} else {
-			$ret = qx (${g_jabber_config_migrator} -c "${g_source_root}${g_bundle_config_path}" -s "${g_source_version}");
+			close(SQLITE) || &log_message("Error, $SQLITE3 returned an error.  Adding new tables to jabberd database possibly failed.");
 		}
-		if ($? != 0) {
-			&log_message("Warning, ${g_jabber_config_migrator} returned error status: $?: $ret");
-		}
-		# Data
-		if ($DEBUG) {
-			$ret = qx (${g_jabber_data_migrator_pre_10_7} -D -s "${g_source_root}${g_sqlite_db_path_pre_10_7}" -d "${g_target_root}${g_sqlite_db_path}");
-		} else {
-			$ret = qx (${g_jabber_data_migrator_pre_10_7} -s "${g_source_root}${g_sqlite_db_path_pre_10_7}" -d "${g_target_root}${g_sqlite_db_path}");
-		}
-		if ($? != 0) {
-			&log_message("Warning, ${g_jabber_data_migrator_pre_10_7} returned error status: $?: $ret");
-		}
-	}
-
+	}} while (0);  # not a loop
 
 	# Handle mu-conference -> Rooms migration (persistent room configuration files)
-	if (${SRV_MINOR} eq "5" || ${SRV_MINOR} eq "6") {
+	if (${SRV_MINOR} eq "6") {
 		&log_message("Migrating mu-conference persistent room configurations");
 		my @domains;
-		$ret = qx { $PLISTBUDDY -x -c "Print :hosts:" "${g_source_root}${g_bundle_config_path}" };
+		if (${SRV_MINOR} eq "6" || ${SRV_MINOR} eq "7") {
+			$ret = qx { $PLISTBUDDY -x -c "Print :hosts:" "${g_source_root}${g_bundle_config_path_pre_10_8}" };
+		} else {
+			$ret = qx { $PLISTBUDDY -x -c "Print :hosts:" "${g_source_root}${g_bundle_config_path}" };
+		}
 		chomp($ret);
 		my @lines = split("\n", $ret);
 		foreach my $line (@lines) {
@@ -329,6 +347,28 @@ EOF
 
 			# First, chat room configuration files
 			&log_message("Migrating Rooms data");
+			$ret = opendir(SRC_CONFIG_DIR, "${g_source_root}${g_rooms_configs_path_10_7}");
+			unless ($ret) {
+				&log_message("Could not open directory: ${g_source_root}${g_rooms_configs_path_10_7}: $!");
+				last;
+			}
+			my @dirs = readdir(SRC_CONFIG_DIR);
+			closedir(SRC_CONFIG_DIR);
+			foreach my $dir (@dirs) {
+				if (! -d "${g_source_root}${g_rooms_configs_path_10_7}/${dir}" || $dir eq "." || $dir eq "..") { next; }
+				$ret = qx { $CP -v -p -R "${g_source_root}${g_rooms_configs_path_10_7}/${dir}" "${g_target_root}${g_rooms_configs_path}" };
+				if ($? != 0) {
+					&log_message("Error, cp failed with status $ret: ($?)");
+					next;
+				}
+			}
+		}} while (0);  # not a loop
+	} elsif (${SRV_MINOR} eq "8") {
+		do {{  # not a loop
+			# Rooms -> Rooms
+			
+			# First, chat room configuration files
+			&log_message("Migrating Rooms data");
 			$ret = opendir(SRC_CONFIG_DIR, "${g_source_root}${g_rooms_configs_path}");
 			unless ($ret) {
 				&log_message("Could not open directory: ${g_source_root}${g_rooms_configs_path}: $!");
@@ -344,63 +384,6 @@ EOF
 					next;
 				}
 			}
-
-			# Now, migrate any data related to file sharing
-			# uploaded and shared files:
-			$ret = opendir(SRC_DATA_DIR, "${g_source_root}${g_rooms_fsstore_path}");
-			unless ($ret) {
-				&log_message("Could not open directory: ${g_source_root}${g_rooms_fsstore_path}: $!");
-				last;
-			}
-			@dirs = readdir(SRC_DATA_DIR);
-			closedir(SRC_DATA_DIR);
-			foreach my $dir (@dirs) {
-				if (! -d "${g_source_root}${g_rooms_fsstore_path}/${dir}" || $dir eq "." || $dir eq "..") { next; }
-				$ret = qx { $CP -v -p -R "${g_source_root}${g_rooms_fsstore_path}/${dir}" "${g_target_root}${g_rooms_fsstore_path}" };
-				if ($? != 0) {
-					&log_message("Error, cp failed with status $ret: ($?)");
-					next;
-				}
-			}
-			
-			# Create directories and symlinks
-			$ret = opendir(DOMAINS, "${g_source_root}${g_rooms_fsstore_path}");
-			unless ($ret) {
-				&log_message("Could not open directory: ${g_source_root}${g_rooms_fsstore_path}: $!");
-				last;
-			}
-			my @domains = readdir(DOMAINS);
-			closedir(DOMAINS);
-			foreach my $domain (@domains) {
-				if (! -d $domain || $domain eq "." || $domain eq "..") { next; }
-
-				$ret = opendir(ROOMS, "${g_source_root}${g_rooms_fsstore_path}/${domain}");
-				unless ($ret) {
-					&log_message("Could not open directory: ${g_source_root}${g_rooms_fsstore_path}/${domain} : $!");
-					next;
-				}
-				my @rooms = readdir(ROOMS);
-				closedir(ROOMS);
-				foreach my $room (@rooms) {
-				if (! -d $room || $room eq "." || $room eq "..") { next; }
-					my $guid = qx { $PLISTBUDDY -c "Print ${room}\@${domain}:uniqueID:" "${g_source_root}${g_rooms_fsstore_path}/${domain}/${room}/room_fsaccess.plist" };
-					chomp($guid);
-					if ($guid =~ /Does Not Exist/) {
-						&log_message("$PLISTBUDDY failed ($?): ${guid}");
-						next;
-					} else {
-						$ret = mkdir("${g_target_root}${g_rooms_home_sites_path}/${guid}", 0750);
-						unless ($ret) {
-							&log_message("Could not create directory ${g_target_root}${g_rooms_home_sites_path}/${guid} : $!");
-							next;
-						}
-						$ret = chown($g_jabber_uid, $g_jabber_gid, "${g_target_root}${g_rooms_home_sites_path}/${guid}");
-						unless ($ret) {
-							&log_message("Error, chown failed with status $ret: $!");
-						}
-					}
-				}
-			}
 		}} while (0);  # not a loop
 	}
 
@@ -408,12 +391,18 @@ EOF
 	# Backup old message logs
 	do {{  # not a loop
 		&log_message("Migrating message archives to new system...");
-		my $source_archive_dir = qx(${PLISTBUDDY} -c "Print :savedChatsLocation" "${g_source_root}${g_bundle_config_path}");
+		my $source_archive_dir;
+		if (${SRV_MINOR} eq "6" || ${SRV_MINOR} eq "7") {
+			$source_archive_dir = qx(${PLISTBUDDY} -c "Print :savedChatsLocation" "${g_source_root}${g_bundle_config_path_pre_10_8}");
+		} else {
+			$source_archive_dir = qx(${PLISTBUDDY} -c "Print :savedChatsLocation" "${g_source_root}${g_bundle_config_path}");
+		}
 		chomp($source_archive_dir);
 		if (! -e "${g_source_root}${source_archive_dir}") {
 			&log_message("Could not locate source directory for message archive migration");
 			last;
 		}
+
 
 		my $target_archive_dir = qx(${PLISTBUDDY} -c "Print :savedChatsLocation" "${g_target_root}${g_bundle_config_path}");
 		chomp($target_archive_dir);
@@ -461,11 +450,21 @@ EOF
 	}} while (0);  # not a loop
 
 	# Start/Stop and Load/Unload, using source volume's service state
-	$ichat_disabled = &get_service_state;
+	$message_server_disabled = &get_service_state;
+	my $source_service_mode;
+	if (${SRV_MINOR} eq "6" || ${SRV_MINOR} eq "7") {
+		$source_service_mode = qx(${PLISTBUDDY} -c "Print :serviceMode" "${g_source_root}${g_bundle_config_path_pre_10_8}");
+	} else {
+		$source_service_mode = qx(${PLISTBUDDY} -c "Print :serviceMode" "${g_source_root}${g_bundle_config_path}");
+	}
+	chomp($source_service_mode);
 
-	if (($ichat_disabled_orig eq "false") && ($ichat_disabled eq "true")) {
-		&log_message("restore_and_set_state: Starting iChat Server service");
-		&start_stop_ichat("start");
+	if (($message_server_disabled_orig eq "false") && ($message_server_disabled eq "true")) {
+		# for migration from 10.6, if the service was only enabled for Notification, don't start up 
+		if (! (${SRV_MINOR} eq "6" && $source_service_mode eq "NOTIFICATION")) {
+			&log_message("restore_and_set_state: Starting Message Server service");
+			&start_stop_message_server("start");
+		}
 	}
 
 	if ($FUNC_LOG) {printf("restore_and_set_state := E\n");}
@@ -474,66 +473,70 @@ EOF
 
 ################################################################################
 ##
-sub start_stop_ichat()
+sub start_stop_message_server()
 {
 	my $command = shift;
-	my $ichat_disabled = &get_service_state;
+	my $message_server_disabled = &get_service_state;
 
-	if ($FUNC_LOG) {printf("start_stop_ichat := S\n");}
-	&log_message("start_stop_ichat := S");
+	if ($FUNC_LOG) {printf("start_stop_message_server := S\n");}
+	&log_message("start_stop_message_server := S");
 
 	if (($command eq "start") &&
-			($ichat_disabled eq "true")) {
-		&log_message("Starting iChat Server service");
+			($message_server_disabled eq "true")) {
+		&log_message("Starting Message Server service");
 		qx(${SERVERADMIN} start ${g_service_name});
 		if ($? != 0) { &log_message("${SERVERADMIN} failed with status error status: $?\n"); }
 		if ($DEBUG) { printf("%s\n", qq(${SERVERADMIN} start ${g_service_name})); }
 	} elsif (($command eq "stop") &&
-			($ichat_disabled eq "false")) { 
-		&log_message("Stopping iChat Server service");
+			($message_server_disabled eq "false")) { 
+		&log_message("Stopping Message Server service");
 		qx(${SERVERADMIN} stop ${g_service_name});
 		if ($? != 0) { &log_message("${SERVERADMIN} failed with status error status: $?\n"); }
 		if ($DEBUG) { printf("%s\n", qq(${SERVERADMIN} stop ${g_service_name}));  }
 	} else {
-		if ($DEBUG) { &log_message("start_stop_ichat: nop, command = ${command}, ichat_disabled = ${ichat_disabled}"); }
+		if ($DEBUG) { &log_message("start_stop_message_server: nop, command = ${command}, message_server_disabled = ${message_server_disabled}"); }
 	}
 
-	if ($FUNC_LOG) {printf("start_stop_ichat := E\n");}
-	&log_message("start_stop_ichat := E");	
+	if ($FUNC_LOG) {printf("start_stop_message_server := E\n");}
+	&log_message("start_stop_message_server := E");	
 }
 
 ################################################################################
 ## If the service hasn't been initialized yet, do it now.		
-sub ensure_ichat_initialized()
+sub ensure_message_server_initialized()
 {
-	if ($FUNC_LOG) {printf("ensure_ichat_initialized := S\n");}
-	&log_message("ensure_ichat_initialized := S");
+	if ($FUNC_LOG) {printf("ensure_message_server_initialized := S\n");}
+	&log_message("ensure_message_server_initialized := S");
 
 	if (-e $g_bundle_config_path) {
-		my $ichat_initialized = qx(${PLISTBUDDY} -c "Print :initialized" "${g_bundle_config_path}");
-		chomp($ichat_initialized);
-		if ($ichat_initialized eq "true") {
+		my $message_server_initialized = qx(${PLISTBUDDY} -c "Print :initialized" "${g_bundle_config_path}");
+		chomp($message_server_initialized);
+		if ($message_server_initialized eq "true") {
 			&log_message("Already initialized");
 			return 1;
 		}
 	}
 
-	&log_message("Issuing initialSetup command for iChat Server initialization");
 	#  Otherwise we need to do the initialization ourself
+	&log_message("Initializing Message Server");
+
+	# We need to move the default configuration files into place
+	qx(${g_initialize_script_path});
+
 	my $ret = qx(${SERVERADMIN} status ${g_service_name});
 	&log_message("getState returned: $ret");
 
 	if (-e $g_bundle_config_path) {
-		my $ichat_initialized = qx(${PLISTBUDDY} -c "Print :initialized" "${g_bundle_config_path}");
-		chomp($ichat_initialized);
-		if ($ichat_initialized ne "true") {
+		my $message_server_initialized = qx(${PLISTBUDDY} -c "Print :initialized" "${g_bundle_config_path}");
+		chomp($message_server_initialized);
+		if ($message_server_initialized ne "true") {
 			&log_message("Error: Cannot initialize service");
 			return 0;
 		}
 	}
 
-	if ($FUNC_LOG) {printf("ensure_ichat_initialized := E\n");}
-	&log_message("ensure_ichat_initialized := E");
+	if ($FUNC_LOG) {printf("ensure_message_server_initialized := E\n");}
+	&log_message("ensure_message_server_initialized := E");
 	return 1;
 }
   
@@ -599,7 +602,7 @@ sub validate_options_and_dispatch()
 					$valid = 1;
 					&migrate_upgrade();
 				} else {
-					print("Did not supply a valid version for the --sourceVersion parameter, needs to be >= 10.5.0 and < 10.7.0\n");
+					print("Did not supply a valid version for the --sourceVersion parameter, needs to be >= 10.6.0 and <= 10.8.x\n");
 					&usage(); exit(1);
 				}
 			} else {
@@ -624,8 +627,8 @@ sub usage()
 	print("--sourceRoot <path> The path to the root of the system to migrate" . "\n");
 	print("--sourceType <System | TimeMachine> Gives the type of the migration source, whether it's a runnable system or a " . "\n");
 	print("                  Time Machine backup." . "\n");
-	print("--sourceVersion <ver> The version number of the old system (like 10.5.x or 10.6). Since we support migration from 10.5, " . "\n");
-	print("                  10.6, and other 10.7 installs, it's useful to know this information, and it would be easier for me to figure " . "\n");
+	print("--sourceVersion <ver> The version number of the old system (like 10.6.x or 10.7). Since we support migration from 10.6, " . "\n");
+	print("                  10.7, and other 10.8 installs, it's useful to know this information, and it would be easier for me to figure " . "\n");
 	print("                  it out once and pass it on to each script than to have each script have to figure it out itself." . "\n");
 	print("--targetRoot <path> The path to the root of the new system. Pretty much always \"\/\"" . "\n");
 	print("--language <lang> A language identifier, such as \"en.\" Long running scripts should return a description of what they're doing" . "\n");

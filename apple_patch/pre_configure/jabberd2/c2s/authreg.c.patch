@@ -1,5 +1,5 @@
---- /tmp/jabberd-2.2.13/c2s/authreg.c	2011-02-23 08:24:34.000000000 -0800
-+++ ./jabberd2/c2s/authreg.c	2011-03-01 10:13:14.000000000 -0800
+--- /tmp/jabberd-2.2.17/c2s/authreg.c	2012-02-12 10:56:09.000000000 -0800
++++ ./jabberd2/c2s/authreg.c	2012-08-28 18:48:59.000000000 -0700
 @@ -27,6 +27,8 @@
    #include <dlfcn.h>
  #endif
@@ -9,7 +9,7 @@
  /* authreg module manager */
  
  typedef struct _authreg_error_st {
-@@ -121,7 +123,7 @@ void authreg_free(authreg_t ar) {
+@@ -131,7 +133,7 @@ inline static void _authreg_auth_log(c2s
  
  /** auth get handler */
  static void _authreg_auth_get(c2s_t c2s, sess_t sess, nad_t nad) {
@@ -18,7 +18,7 @@
      char username[1024], id[128];
      int ar_mechs;
  
-@@ -155,7 +157,7 @@ static void _authreg_auth_get(c2s_t c2s,
+@@ -165,7 +167,7 @@ static void _authreg_auth_get(c2s_t c2s,
          ar_mechs = ar_mechs | c2s->ar_ssl_mechanisms;
          
      /* no point going on if we have no mechanisms */
@@ -27,7 +27,7 @@
          sx_nad_write(sess->s, stanza_tofrom(stanza_error(nad, 0, stanza_err_FORBIDDEN), 0));
          return;
      }
-@@ -199,6 +201,19 @@ static void _authreg_auth_get(c2s_t c2s,
+@@ -209,6 +211,19 @@ static void _authreg_auth_get(c2s_t c2s,
      if(ar_mechs & AR_MECH_TRAD_DIGEST && c2s->ar->get_password != NULL)
          nad_append_elem(nad, ns, "digest", 2);
  
@@ -47,16 +47,7 @@
      /* give it back to the client */
      sx_nad_write(sess->s, nad);
  
-@@ -260,7 +275,7 @@ static void _authreg_auth_set(c2s_t c2s,
-         ar_mechs = ar_mechs | c2s->ar_ssl_mechanisms;
-     
-     /* no point going on if we have no mechanisms */
--    if(!(ar_mechs & (AR_MECH_TRAD_PLAIN | AR_MECH_TRAD_DIGEST))) {
-+    if(!(ar_mechs & (AR_MECH_TRAD_PLAIN | AR_MECH_TRAD_DIGEST | AR_MECH_TRAD_CRAMMD5))) {
-         sx_nad_write(sess->s, stanza_tofrom(stanza_error(nad, 0, stanza_err_FORBIDDEN), 0));
-         return;
-     }
-@@ -271,6 +286,24 @@ static void _authreg_auth_set(c2s_t c2s,
+@@ -281,6 +296,24 @@ static void _authreg_auth_set(c2s_t c2s,
          return;
      }
      
@@ -81,30 +72,36 @@
      /* digest auth */
      if(!authd && ar_mechs & AR_MECH_TRAD_DIGEST && c2s->ar->get_password != NULL)
      {
-@@ -286,6 +319,9 @@ static void _authreg_auth_set(c2s_t c2s,
+@@ -296,7 +329,10 @@ static void _authreg_auth_set(c2s_t c2s,
                  {
                      log_debug(ZONE, "digest auth succeeded");
                      authd = 1;
+-                    _authreg_auth_log(c2s, sess, "traditional.digest", username, resource, TRUE);
++                    //_authreg_auth_log(c2s, sess, "traditional.digest", username, resource, TRUE);
 +                    auth_event_log_simple(username, sess->s->ip, sess->s->port, "traditional.digest", eAuthSuccess);
 +                } else {
 +                    auth_event_log_simple(username, sess->s->ip, sess->s->port, "traditional.digest", eAuthFailure);
                  }
              }
          }
-@@ -301,6 +337,9 @@ static void _authreg_auth_set(c2s_t c2s,
+@@ -312,7 +348,10 @@ static void _authreg_auth_set(c2s_t c2s,
              {
                  log_debug(ZONE, "plaintext auth (compare) succeeded");
                  authd = 1;
+-                _authreg_auth_log(c2s, sess, "traditional.plain(compare)", username, resource, TRUE);
++                //_authreg_auth_log(c2s, sess, "traditional.plain(compare)", username, resource, TRUE);
 +                auth_event_log_simple(username, sess->s->ip, sess->s->port, "traditional.plain(compare)", eAuthSuccess);
 +            } else {
 +                auth_event_log_simple(username, sess->s->ip, sess->s->port, "traditional.plain(compare)", eAuthFailure);
              }
          }
      }
-@@ -316,6 +355,9 @@ static void _authreg_auth_set(c2s_t c2s,
+@@ -328,7 +367,10 @@ static void _authreg_auth_set(c2s_t c2s,
              {
                  log_debug(ZONE, "plaintext auth (check) succeded");
                  authd = 1;
+-                _authreg_auth_log(c2s, sess, "traditional.plain", username, resource, TRUE);
++                //_authreg_auth_log(c2s, sess, "traditional.plain", username, resource, TRUE);
 +                auth_event_log_simple(username, sess->s->ip, sess->s->port, "traditional.plain", eAuthSuccess);
 +            } else {
 +                auth_event_log_simple(username, sess->s->ip, sess->s->port, "traditional.plain", eAuthFailure);

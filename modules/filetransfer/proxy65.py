@@ -27,11 +27,12 @@ $Id: proxy65.py 34 2008-12-14 12:48:21Z fabio.forno@gmail.com $
 
 -------------------------------------------------------------------------
 
-Portions Copyright 2008 Apple, Inc.  All rights reserved.
+Portions Copyright 2008-2012 Apple, Inc.  All rights reserved.
 """
 import os
 import sys, socket
-sys.path.append('/usr/share/proxy65');
+os.environ["PYTHONHASHSEED"] = "random"
+sys.path.append('/Applications/Server.app/Contents/ServerRoot/usr/share/proxy65');
 from plistlib import readPlist, writePlist
 from twisted.internet import protocol, reactor
 from twisted.python import usage, log

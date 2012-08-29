@@ -1,12 +1,12 @@
---- /tmp/jabberd-2.2.13/storage/Makefile.am	2011-02-23 08:24:34.000000000 -0800
-+++ ./jabberd2/storage/Makefile.am	2011-02-24 16:25:21.000000000 -0800
-@@ -104,3 +104,8 @@ storage_sqlite_la_LDFLAGS = $(MODULE_LDF
+--- /tmp/jabberd-2.2.17/storage/Makefile.am	2012-05-04 11:09:04.000000000 -0700
++++ ./jabberd2/storage/Makefile.am	2012-08-28 18:49:00.000000000 -0700
+@@ -112,3 +112,9 @@ storage_sqlite_la_SOURCES = storage_sqli
+ storage_sqlite_la_LDFLAGS = $(MODULE_LDFLAGS)
  storage_sqlite_la_LIBADD  = $(MODULE_LIBADD) $(SQLITE_LIBS)
  endif
- 
++
 +if STORAGE_APPLE
 +pkglib_LTLIBRARIES += authreg_apple_od.la
 +authreg_apple_od_la_SOURCES = authreg_apple_od.c
 +authreg_apple_od_la_LDFLAGS = $(APPLE_OD_LIBS)
 +endif
-\ No newline at end of file

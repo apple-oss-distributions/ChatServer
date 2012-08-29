@@ -1,5 +1,5 @@
---- /tmp/jabberd-2.2.13/sx/ssl.c	2011-02-23 08:24:34.000000000 -0800
-+++ ./jabberd2/sx/ssl.c	2011-02-24 17:30:46.000000000 -0800
+--- /tmp/jabberd-2.2.17/sx/ssl.c	2012-02-12 13:38:25.000000000 -0800
++++ ./jabberd2/sx/ssl.c	2012-08-28 18:49:00.000000000 -0700
 @@ -176,6 +176,8 @@ static int _sx_ssl_process(sx_t s, sx_pl
              if(s->plugin_data[p->index] != NULL) {
                  if( ((_sx_ssl_conn_t)s->plugin_data[p->index])->pemfile != NULL )
@@ -114,7 +114,7 @@
  
      if(!sx_openssl_initialized) {
          _sx_debug(ZONE, "ssl plugin not initialised");
-@@ -886,6 +920,13 @@ int sx_ssl_server_addcert(sx_plugin_t p,
+@@ -893,6 +927,13 @@ int sx_ssl_server_addcert(sx_plugin_t p,
          return 1;
      }
  
@@ -128,7 +128,7 @@
      /* Load the CA chain, if configured */
      if (cachain != NULL) {
          ret = SSL_CTX_load_verify_locations (ctx, cachain, NULL);
-@@ -924,6 +965,30 @@ int sx_ssl_server_addcert(sx_plugin_t p,
+@@ -931,6 +972,30 @@ int sx_ssl_server_addcert(sx_plugin_t p,
          return 1;
      }
  
@@ -159,7 +159,7 @@
      /* load the private key */
      ret = SSL_CTX_use_PrivateKey_file(ctx, pemfile, SSL_FILETYPE_PEM);
      if(ret != 1) {
-@@ -950,7 +1015,7 @@ int sx_ssl_server_addcert(sx_plugin_t p,
+@@ -957,7 +1022,7 @@ int sx_ssl_server_addcert(sx_plugin_t p,
  
          /* this is the first context, if it's not the default then make a copy of it as the default */
          if(!(name[0] == '*' && name[1] == 0)) {
@@ -168,7 +168,7 @@
  
              if(ret) {
                  /* uh-oh */
-@@ -973,7 +1038,7 @@ int sx_ssl_server_addcert(sx_plugin_t p,
+@@ -980,7 +1045,7 @@ int sx_ssl_server_addcert(sx_plugin_t p,
      return 0;
  }
  
@@ -177,7 +177,7 @@
      assert((int) (p != NULL));
      assert((int) (s != NULL));
  
-@@ -995,6 +1060,10 @@ int sx_ssl_client_starttls(sx_plugin_t p
+@@ -1002,6 +1067,10 @@ int sx_ssl_client_starttls(sx_plugin_t p
      if(pemfile != NULL) {
          s->plugin_data[p->index] = (_sx_ssl_conn_t) calloc(1, sizeof(struct _sx_ssl_conn_st));
          ((_sx_ssl_conn_t)s->plugin_data[p->index])->pemfile = strdup(pemfile);
@@ -188,7 +188,7 @@
      }
  
      /* go */
-@@ -1004,3 +1073,33 @@ int sx_ssl_client_starttls(sx_plugin_t p
+@@ -1011,3 +1080,33 @@ int sx_ssl_client_starttls(sx_plugin_t p
  
      return 0;
  }

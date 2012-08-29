@@ -75,7 +75,7 @@
 
 #ifndef DEBUG
 	if ([self isJabberdRunning]) {
-		[_logger logStdErrMessage: @"\nThis operation is not available while the iChat Service is running.\n\n"];
+		[_logger logStdErrMessage: @"\nThis operation is not available while the Message Server is running.\n\n"];
 		return;
 	}
 #endif

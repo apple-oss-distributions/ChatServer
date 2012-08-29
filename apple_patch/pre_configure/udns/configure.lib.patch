@@ -1,0 +1,47 @@
+--- udns-0.2/configure.lib	2011-05-23 01:09:15.000000000 -0700
++++ udns-0.2_patched/configure.lib	2012-03-28 15:25:08.000000000 -0700
+@@ -4,7 +4,7 @@
+ 
+ set -e
+ ac_substitutes=
+-rm -f conftest* config.log
++rm -rf conftest* config.log
+ exec 5>config.log
+ cat <<EOF >&5
+ This file contains any messages produced by compilers etc while
+@@ -102,7 +102,7 @@
+ 
+ # run a compiler
+ ac_run_compiler() {
+-  rm -f conftest*; cat >conftest.c
++  rm -rf conftest*; cat >conftest.c
+   ac_run $CC $CFLAGS $CDEFS "$@" conftest.c
+ }
+ 
+@@ -121,7 +121,7 @@
+ ### check for C compiler.  Set $CC, $CFLAGS etc
+ ac_prog_c_compiler_v() {
+   ac_checking "for C compiler"
+-  rm -f conftest*
++  rm -rf conftest*
+   echo 'int main(int argc, char **argv) { return 0; }' >conftest.c
+ 
+   if [ -n "$CC" ]; then
+@@ -204,7 +204,7 @@
+   ac_checking "for libraries needed for $1"
+   shift
+   fond=
+-  rm -f conftest*; cat >conftest.c
++  rm -rf conftest*; cat >conftest.c
+   for lib in "$@"; do
+     if ac_run $CC $CFLAGS $LDFLAGS conftest.c -o conftest $LIBS $lib; then
+       found=y
+@@ -247,7 +247,7 @@
+       ac_fatal "$file.in not found"
+     fi
+   done
+-  rm -f conftest*
++  rm -rf conftest*
+ }
+ 
+ ac_config_h() {

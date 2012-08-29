@@ -13,9 +13,9 @@
 
 // CONSTANTS
 
-#define JABBER_DB_PATH_DEFAULT @"/Library/Server/iChat/Data/sqlite/jabberd2.db"
+#define JABBER_DB_PATH_DEFAULT @"/Library/Server/Messages/Data/sqlite/jabberd2.db"
 #define JABBER_DB_FILENAME_DEFAULT @"jabberd2.db"
-#define SRVRMGR_JABBER_PREFS_PATH @"/Library/Preferences/com.apple.ichatserver.plist"
+#define SRVRMGR_JABBER_PREFS_PATH @"/Library/Preferences/com.apple.messageserver.plist"
 #define SMJ_SETTINGSKEY_JABBERD_DB_PATH @"jabberdDatabasePath"
 
 #define QRY_SEL_OWNER_FROM_ACTIVE @"select \"collection-owner\" from active where \"collection-owner\" = \"%@\""

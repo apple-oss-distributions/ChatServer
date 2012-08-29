@@ -1,5 +1,5 @@
---- /tmp/jabberd-2.2.13/sm/main.c	2011-02-23 08:24:34.000000000 -0800
-+++ ./jabberd2/sm/main.c	2011-02-24 16:25:21.000000000 -0800
+--- /tmp/jabberd-2.2.17/sm/main.c	2012-05-04 07:51:08.000000000 -0700
++++ ./jabberd2/sm/main.c	2012-08-28 18:49:00.000000000 -0700
 @@ -30,6 +30,7 @@
  
  static sig_atomic_t sm_shutdown = 0;
@@ -33,8 +33,8 @@
 +    sm_sighup = 1;
  }
  
- /** store the process id */
-@@ -66,6 +50,10 @@ static void _sm_pidfile(sm_t sm) {
+ static void _sm_signal_usr1(int signum)
+@@ -76,6 +60,10 @@ static void _sm_pidfile(sm_t sm) {
      char *pidfile;
      FILE *f;
      pid_t pid;
@@ -45,7 +45,7 @@
  
      pidfile = config_get_one(sm->config, "pidfile", 0);
      if(pidfile == NULL)
-@@ -73,6 +61,39 @@ static void _sm_pidfile(sm_t sm) {
+@@ -83,6 +71,39 @@ static void _sm_pidfile(sm_t sm) {
  
      pid = getpid();
  
@@ -85,15 +85,7 @@
      if((f = fopen(pidfile, "w+")) == NULL) {
          log_write(sm->log, LOG_ERR, "couldn't open %s for writing: %s", pidfile, strerror(errno));
          return;
-@@ -93,6 +114,7 @@ static void _sm_pidfile(sm_t sm) {
- static void _sm_config_expand(sm_t sm)
- {
-     char *str;
-+    config_elem_t elem;
- 
-     sm->id = config_get_one(sm->config, "id", 0);
-     if(sm->id == NULL)
-@@ -113,6 +135,8 @@ static void _sm_config_expand(sm_t sm)
+@@ -126,6 +147,8 @@ static void _sm_config_expand(sm_t sm)
  
      sm->router_pemfile = config_get_one(sm->config, "router.pemfile", 0);
  
@@ -102,33 +94,7 @@
      sm->retry_init = j_atoi(config_get_one(sm->config, "router.retry.init", 0), 3);
      sm->retry_lost = j_atoi(config_get_one(sm->config, "router.retry.lost", 0), 3);
      if((sm->retry_sleep = j_atoi(config_get_one(sm->config, "router.retry.sleep", 0), 2)) < 1)
-@@ -135,6 +159,19 @@ static void _sm_config_expand(sm_t sm)
-             sm->log_ident = "jabberd/sm";
-     } else if(sm->log_type == log_FILE)
-         sm->log_ident = config_get_one(sm->config, "log.file", 0);
-+        
-+    elem = config_get(sm->config, "storage.limits.queries");
-+    if(elem != NULL)
-+    {
-+        sm->query_rate_total = j_atoi(elem->values[0], 0);
-+        if(sm->query_rate_total != 0)
-+        {
-+            sm->query_rate_seconds = j_atoi(j_attr((const char **) elem->attrs[0], "seconds"), 5);
-+            sm->query_rate_wait = j_atoi(j_attr((const char **) elem->attrs[0], "throttle"), 60);
-+        }
-+    }
-+    sm->masq_sender_replacement = config_get_one(sm->config, "aci.masq_sender_replacement", 0);
-+    sm->apple_notification_component_addr = config_get_one(sm->config, "apple_notification_component_addr", 0);
- }
- 
- static void _sm_hosts_expand(sm_t sm)
-@@ -332,11 +369,13 @@ JABBER_MAIN("jabberd2sm", "Jabber 2 Sess
- 
-     sm->users = xhash_new(401);
- 
-+    sm->query_rates = xhash_new(101);
-+
-     sm->sx_env = sx_env_new();
+@@ -370,7 +393,7 @@ JABBER_MAIN("jabberd2sm", "Jabber 2 Sess
  
  #ifdef HAVE_SSL
      if(sm->router_pemfile != NULL) {
@@ -137,7 +103,7 @@
          if(sm->sx_ssl == NULL) {
              log_write(sm->log, LOG_ERR, "failed to load SSL pemfile, SSL disabled");
              sm->router_pemfile = NULL;
-@@ -363,6 +402,31 @@ JABBER_MAIN("jabberd2sm", "Jabber 2 Sess
+@@ -397,6 +420,32 @@ JABBER_MAIN("jabberd2sm", "Jabber 2 Sess
      while(!sm_shutdown) {
          mio_run(sm->mio, 5);
  
@@ -154,7 +120,7 @@
 +                //     data.  Disabling module reloading until we can fix this.
 +                //config_free(sm->config);
 +                //sm->config = conf;
-+                sm->apple_notification_component_addr = config_get_one(conf, "apple_notification_component_addr", 0);
++                // Currently no config items are reloaded.  Add items here.
 +                config_free(conf);
 +            } else {
 +                log_write(sm->log, LOG_WARNING, "couldn't reload config (%s)", config_file);
@@ -166,23 +132,7 @@
 +            sm_sighup = 0;
 +        }
 +
++
          if(sm_logrotate) {
-             log_write(sm->log, LOG_NOTICE, "reopening log ...");
-             log_free(sm->log);
-@@ -411,7 +475,7 @@ JABBER_MAIN("jabberd2sm", "Jabber 2 Sess
-             xhash_iter_get(sm->sessions, NULL, NULL, (void *) &sess);
-             sm_c2s_action(sess, "ended", NULL);
-             sess_end(sess);
--        } while(xhash_count(sm->sessions) > 0);
-+        } while (xhash_iter_next(sm->sessions));
- 
-     xhash_free(sm->sessions);
- 
-@@ -428,6 +492,7 @@ JABBER_MAIN("jabberd2sm", "Jabber 2 Sess
-     xhash_free(sm->xmlns_refcount);
-     xhash_free(sm->users);
-     xhash_free(sm->hosts);
-+    xhash_free(sm->query_rates);
- 
-     sx_free(sm->router);
+             set_debug_log_from_config(sm->config);
  

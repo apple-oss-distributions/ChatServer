@@ -174,7 +174,7 @@
 		AA7DBA510E40F11B0016DB7F /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 8;
-			dstPath = /usr/share/man/man8/;
+			dstPath = "$(SERVER_INSTALL_PATH_PREFIX)/usr/share/man/man8/";
 			dstSubfolderSpec = 0;
 			files = (
 				AA423FA10E41282600F9C5D9 /* jabber_autobuddy.8 in CopyFiles */,
@@ -185,12 +185,6 @@
 
 /* Begin PBXFileReference section */
 		5D1BFABC0A40AB4E001540ED /* Makefile */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.make; path = Makefile; sourceTree = "<group>"; };
-		5D1C46A10A55E5DF007B3713 /* 75-iChatServer.plist */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text.plist.xml; name = "75-iChatServer.plist"; path = "backup_restore/75-iChatServer.plist"; sourceTree = SOURCE_ROOT; };
-		5D1C46A20A55E5DF007B3713 /* iChatServer_backup */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text.script.perl; name = iChatServer_backup; path = backup_restore/iChatServer_backup; sourceTree = SOURCE_ROOT; };
-		5D1C46A30A55E5DF007B3713 /* iChatServer_restore */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text.script.perl; name = iChatServer_restore; path = backup_restore/iChatServer_restore; sourceTree = SOURCE_ROOT; };
-		5D1C46A40A55E5DF007B3713 /* iChatServer_verify */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text.script.perl; name = iChatServer_verify; path = backup_restore/iChatServer_verify; sourceTree = SOURCE_ROOT; };
-		5D37F0580ADD987D009CC04A /* config.cache */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; name = config.cache; path = config_cache/glib/i386/config.cache; sourceTree = SOURCE_ROOT; };
-		5D37F05A0ADD987E009CC04A /* config.cache */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; name = config.cache; path = config_cache/glib/ppc/config.cache; sourceTree = SOURCE_ROOT; };
 		5D3BA58012A72D2500963DC7 /* odckit.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = odckit.m; path = jabber_od_auth/odckit.m; sourceTree = SOURCE_ROOT; };
 		5D3E6A541288DC4B00318E3A /* JABMakeGroupBuddiesByGuidAction.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JABMakeGroupBuddiesByGuidAction.m; sourceTree = "<group>"; };
 		5D3E6A591288DC7900318E3A /* JABMakeGroupBuddiesByGuidAction.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JABMakeGroupBuddiesByGuidAction.h; sourceTree = "<group>"; };
@@ -204,7 +198,6 @@
 		5D4F9BE70A5B184100AAC80D /* apple_authorize.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = apple_authorize.h; path = jabber_od_auth/apple_authorize.h; sourceTree = SOURCE_ROOT; };
 		5D52DBE810A2190200984EAE /* c2s.xml.dist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = c2s.xml.dist; sourceTree = "<group>"; };
 		5D52DBE910A2190200984EAE /* jabberd.cfg.dist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = jabberd.cfg.dist; sourceTree = "<group>"; };
-		5D52DBEA10A2190200984EAE /* muc-jcr.xml.dist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "muc-jcr.xml.dist"; sourceTree = "<group>"; };
 		5D52DBEB10A2190200984EAE /* router-filter.xml.dist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "router-filter.xml.dist"; sourceTree = "<group>"; };
 		5D52DBEC10A2190200984EAE /* router-users.xml.dist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "router-users.xml.dist"; sourceTree = "<group>"; };
 		5D52DBED10A2190200984EAE /* router.xml.dist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = router.xml.dist; sourceTree = "<group>"; };
@@ -217,18 +210,24 @@
 		5D5D91C00A52FD8C005089F1 /* router.xml */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text.xml; name = router.xml; path = "cfg-apple/router.xml"; sourceTree = SOURCE_ROOT; };
 		5D5D91C10A52FD8C005089F1 /* s2s.xml */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text.xml; name = s2s.xml; path = "cfg-apple/s2s.xml"; sourceTree = SOURCE_ROOT; };
 		5D5D91C20A52FD8C005089F1 /* sm.xml */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text.xml; name = sm.xml; path = "cfg-apple/sm.xml"; sourceTree = SOURCE_ROOT; };
-		5DBEB6130EA049B900052914 /* router-filter.apple.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = "router-filter.apple.xml"; sourceTree = "<group>"; };
-		5DCB1DA10ACC8947002AC9A7 /* makeargtap */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text.script.sh; name = makeargtap; path = modules/filetransfer/makeargtap; sourceTree = SOURCE_ROOT; };
-		5DCB1DA30ACC8947002AC9A7 /* README */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; name = README; path = modules/filetransfer/proxy65/README; sourceTree = SOURCE_ROOT; };
-		5DCB1DA50ACC8947002AC9A7 /* __init__.py */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text.script.python; name = __init__.py; path = modules/filetransfer/proxy65/proxy65/__init__.py; sourceTree = SOURCE_ROOT; };
-		5DCB1DA60ACC8947002AC9A7 /* __init__.pyc */ = {isa = PBXFileReference; lastKnownFileType = file; name = __init__.pyc; path = modules/filetransfer/proxy65/proxy65/__init__.pyc; sourceTree = SOURCE_ROOT; };
-		5DCB1DA70ACC8947002AC9A7 /* plugins.tml */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; name = plugins.tml; path = modules/filetransfer/proxy65/proxy65/plugins.tml; sourceTree = SOURCE_ROOT; };
-		5DCB1DA80ACC8947002AC9A7 /* proxy65.py */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text.script.python; name = proxy65.py; path = modules/filetransfer/proxy65/proxy65/proxy65.py; sourceTree = SOURCE_ROOT; };
-		5DCB1DA90ACC8947002AC9A7 /* proxy65.pyc */ = {isa = PBXFileReference; lastKnownFileType = file; name = proxy65.pyc; path = modules/filetransfer/proxy65/proxy65/proxy65.pyc; sourceTree = SOURCE_ROOT; };
-		5DCB1DAA0ACC8947002AC9A7 /* socks5.py */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text.script.python; name = socks5.py; path = modules/filetransfer/proxy65/proxy65/socks5.py; sourceTree = SOURCE_ROOT; };
-		5DCB1DAB0ACC8947002AC9A7 /* socks5.pyc */ = {isa = PBXFileReference; lastKnownFileType = file; name = socks5.pyc; path = modules/filetransfer/proxy65/proxy65/socks5.pyc; sourceTree = SOURCE_ROOT; };
-		5DCB1DAC0ACC8947002AC9A7 /* setup.py */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text.script.python; name = setup.py; path = modules/filetransfer/proxy65/setup.py; sourceTree = SOURCE_ROOT; };
-		5DE0D2730AE955F30061E05F /* muc-jcr.xml */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text.xml; name = "muc-jcr.xml"; path = "cfg-apple/muc-jcr.xml"; sourceTree = SOURCE_ROOT; };
+		5D688083143FB73A0034C103 /* ServerBuildVariables.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = ServerBuildVariables.xcconfig; path = /AppleInternal/ServerTools/ServerBuildVariables.xcconfig; sourceTree = "<absolute>"; };
+		5DB1ED6714BE4F1400ADF263 /* 75-MessageServer.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "75-MessageServer.plist"; sourceTree = "<group>"; };
+		5DB1ED6814BE4F1400ADF263 /* MessageServer_backup */ = {isa = PBXFileReference; lastKnownFileType = text.script.perl; path = MessageServer_backup; sourceTree = "<group>"; };
+		5DB1ED6914BE4F1400ADF263 /* MessageServer_restore */ = {isa = PBXFileReference; lastKnownFileType = text.script.perl; path = MessageServer_restore; sourceTree = "<group>"; };
+		5DB1ED6A14BE4F1400ADF263 /* MessageServer_verify */ = {isa = PBXFileReference; lastKnownFileType = text.script.perl; path = MessageServer_verify; sourceTree = "<group>"; };
+		5DB1ED6B14BE4F4D00ADF263 /* jabber_config_migrator.pl.8 */ = {isa = PBXFileReference; lastKnownFileType = text; path = jabber_config_migrator.pl.8; sourceTree = "<group>"; };
+		5DB1ED6C14BE4F4D00ADF263 /* jabber_data_migrate_2.0-2.1.pl */ = {isa = PBXFileReference; lastKnownFileType = text.script.perl; path = "jabber_data_migrate_2.0-2.1.pl"; sourceTree = "<group>"; };
+		5DB1ED6D14BE4F4D00ADF263 /* jabber_data_migrate_2.0-2.1.pl.8 */ = {isa = PBXFileReference; lastKnownFileType = text; path = "jabber_data_migrate_2.0-2.1.pl.8"; sourceTree = "<group>"; };
+		5DB1ED6E14BE4F7800ADF263 /* proxy65.py */ = {isa = PBXFileReference; lastKnownFileType = text.script.python; path = proxy65.py; sourceTree = "<group>"; };
+		5DB1ED6F14BE4F7800ADF263 /* socks5.py */ = {isa = PBXFileReference; lastKnownFileType = text.script.python; path = socks5.py; sourceTree = "<group>"; };
+		5DB1ED7014BE4FC800ADF263 /* ChatServer_jabberd.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = ChatServer_jabberd.txt; sourceTree = "<group>"; };
+		5DB1ED7114BE4FC800ADF263 /* ChatServer_libidn.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = ChatServer_libidn.txt; sourceTree = "<group>"; };
+		5DB1ED7214BE4FC800ADF263 /* ChatServer_proxy65.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = ChatServer_proxy65.txt; sourceTree = "<group>"; };
+		5DB1ED7314BE4FC800ADF263 /* ChatServer_udns.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = ChatServer_udns.txt; sourceTree = "<group>"; };
+		5DB1ED7414BE4FC800ADF263 /* ChatServer.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = ChatServer.plist; sourceTree = "<group>"; };
+		5DB1ED7514BE4FC800ADF263 /* jabberd-2.2.14.tar.bz2 */ = {isa = PBXFileReference; lastKnownFileType = file; path = "jabberd-2.2.14.tar.bz2"; sourceTree = "<group>"; };
+		5DB1ED7614BE4FC800ADF263 /* Proxy65-1.2.0.tar.gz */ = {isa = PBXFileReference; lastKnownFileType = archive.gzip; path = "Proxy65-1.2.0.tar.gz"; sourceTree = "<group>"; };
+		5DB1ED7714BE4FC800ADF263 /* udns_0.0.9.tgz */ = {isa = PBXFileReference; lastKnownFileType = file; path = udns_0.0.9.tgz; sourceTree = "<group>"; };
 		5DEB2BCE12D67EA100B37414 /* auth_event.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = auth_event.c; sourceTree = "<group>"; };
 		5DEB2BCF12D67EA100B37414 /* auth_event.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = auth_event.h; sourceTree = "<group>"; };
 		841CA3530F60862200FB3FF7 /* sasl_switch_hit.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = sasl_switch_hit.c; sourceTree = "<group>"; };
@@ -333,32 +332,9 @@
 		AAB294500E2D172C003B13B8 /* util.h.patch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = util.h.patch; path = apple_patch/pre_configure/jabberd2/util/util.h.patch; sourceTree = SOURCE_ROOT; };
 		AAB294520E2D1757003B13B8 /* 58_jabbermigrator.pl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.perl; name = 58_jabbermigrator.pl; path = migration/58_jabbermigrator.pl; sourceTree = SOURCE_ROOT; };
 		AAB294530E2D1757003B13B8 /* jabber_config_migrator.pl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.perl; name = jabber_config_migrator.pl; path = migration/jabber_config_migrator.pl; sourceTree = SOURCE_ROOT; };
-		AAB294540E2D1757003B13B8 /* jabber_data_migrator.rb */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.ruby; name = jabber_data_migrator.rb; path = migration/jabber_data_migrator.rb; sourceTree = SOURCE_ROOT; };
-		AAB294550E2D1757003B13B8 /* jabber_migration_selector.pl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.perl; name = jabber_migration_selector.pl; path = migration/jabber_migration_selector.pl; sourceTree = SOURCE_ROOT; };
-		AAB294570E2D1766003B13B8 /* Proxy65-1.1.1.tar.gz */ = {isa = PBXFileReference; lastKnownFileType = archive.gzip; name = "Proxy65-1.1.1.tar.gz"; path = "opensource_pkgs/Proxy65-1.1.1.tar.gz"; sourceTree = SOURCE_ROOT; };
-		AAB294580E2D1766003B13B8 /* gettext-0.16.1.tgz */ = {isa = PBXFileReference; lastKnownFileType = file; name = "gettext-0.16.1.tgz"; path = "opensource_pkgs/gettext-0.16.1.tgz"; sourceTree = SOURCE_ROOT; };
-		AAB294590E2D1766003B13B8 /* gettext.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist; name = gettext.plist; path = opensource_pkgs/gettext.plist; sourceTree = SOURCE_ROOT; };
-		AAB2945A0E2D1766003B13B8 /* gettext.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = gettext.txt; path = opensource_pkgs/gettext.txt; sourceTree = SOURCE_ROOT; };
-		AAB2945C0E2D1766003B13B8 /* glib.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist; name = glib.plist; path = opensource_pkgs/glib.plist; sourceTree = SOURCE_ROOT; };
-		AAB2945D0E2D1766003B13B8 /* glib.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = glib.txt; path = opensource_pkgs/glib.txt; sourceTree = SOURCE_ROOT; };
-		AAB2945F0E2D1767003B13B8 /* jabberd2.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist; name = jabberd2.plist; path = opensource_pkgs/jabberd2.plist; sourceTree = SOURCE_ROOT; };
-		AAB294600E2D1767003B13B8 /* jabberd2.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = jabberd2.txt; path = opensource_pkgs/jabberd2.txt; sourceTree = SOURCE_ROOT; };
 		AAB294610E2D1767003B13B8 /* libidn-0.6.14.tgz */ = {isa = PBXFileReference; lastKnownFileType = file; name = "libidn-0.6.14.tgz"; path = "opensource_pkgs/libidn-0.6.14.tgz"; sourceTree = SOURCE_ROOT; };
-		AAB294620E2D1767003B13B8 /* libidn.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist; name = libidn.plist; path = opensource_pkgs/libidn.plist; sourceTree = SOURCE_ROOT; };
-		AAB294630E2D1767003B13B8 /* libidn.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = libidn.txt; path = opensource_pkgs/libidn.txt; sourceTree = SOURCE_ROOT; };
-		AAB294640E2D1767003B13B8 /* mu-conference.8 */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = "mu-conference.8"; path = "opensource_pkgs/mu-conference.8"; sourceTree = SOURCE_ROOT; };
-		AAB294650E2D1767003B13B8 /* mu-conference.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist; name = "mu-conference.plist"; path = "opensource_pkgs/mu-conference.plist"; sourceTree = SOURCE_ROOT; };
-		AAB294660E2D1767003B13B8 /* mu-conference.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = "mu-conference.txt"; path = "opensource_pkgs/mu-conference.txt"; sourceTree = SOURCE_ROOT; };
-		AAB294680E2D1767003B13B8 /* pkg-config-0.23.tgz */ = {isa = PBXFileReference; lastKnownFileType = file; name = "pkg-config-0.23.tgz"; path = "opensource_pkgs/pkg-config-0.23.tgz"; sourceTree = SOURCE_ROOT; };
-		AAB294690E2D1767003B13B8 /* pkg-config.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist; name = "pkg-config.plist"; path = "opensource_pkgs/pkg-config.plist"; sourceTree = SOURCE_ROOT; };
-		AAB2946A0E2D1767003B13B8 /* pkg-config.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = "pkg-config.txt"; path = "opensource_pkgs/pkg-config.txt"; sourceTree = SOURCE_ROOT; };
-		AAB2946B0E2D1767003B13B8 /* proxy65.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist; name = proxy65.plist; path = opensource_pkgs/proxy65.plist; sourceTree = SOURCE_ROOT; };
-		AAB2946C0E2D1767003B13B8 /* proxy65.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = proxy65.txt; path = opensource_pkgs/proxy65.txt; sourceTree = SOURCE_ROOT; };
-		AAB2946E0E2D1776003B13B8 /* ichatserver_init_tool */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.perl; name = ichatserver_init_tool; path = tools/ichatserver_init_tool; sourceTree = SOURCE_ROOT; };
-		AAB2946F0E2D1776003B13B8 /* ichatserver_init_tool.8 */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = ichatserver_init_tool.8; path = tools/ichatserver_init_tool.8; sourceTree = SOURCE_ROOT; };
 		AAB294700E2D1776003B13B8 /* muc_room_config.rb */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.ruby; name = muc_room_config.rb; path = tools/muc_room_config.rb; sourceTree = SOURCE_ROOT; };
 		AAB294710E2D1776003B13B8 /* patch_jabberd.pl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.perl; name = patch_jabberd.pl; path = tools/patch_jabberd.pl; sourceTree = SOURCE_ROOT; };
-		AAB294720E2D1776003B13B8 /* xmpp4r.for_muc_room_tool.tar.gz */ = {isa = PBXFileReference; lastKnownFileType = archive.gzip; name = xmpp4r.for_muc_room_tool.tar.gz; path = tools/xmpp4r.for_muc_room_tool.tar.gz; sourceTree = SOURCE_ROOT; };
 		C768EEC30F7C0FB200D40FA5 /* fasterauth.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = fasterauth.c; sourceTree = "<group>"; };
 		C768EEC80F7C0FD500D40FA5 /* fasterauth.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = fasterauth.h; sourceTree = "<group>"; };
 		C7F0356F0F72C35700999B5D /* odkerb.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = odkerb.c; sourceTree = "<group>"; };
@@ -460,6 +436,7 @@
 		08FB7794FE84155DC02AAC07 /* ChatServer2 */ = {
 			isa = PBXGroup;
 			children = (
+				5D688083143FB73A0034C103 /* ServerBuildVariables.xcconfig */,
 				5D4F9BE30A5B184100AAC80D /* jabber_od_auth */,
 				5D5D92020A531D86005089F1 /* jabber_autobuddy */,
 				AA7DBA140E40EAAA0016DB7F /* ChatServer */,
@@ -477,49 +454,13 @@
 		5D1C46A00A55E5DF007B3713 /* backup_restore */ = {
 			isa = PBXGroup;
 			children = (
-				5D1C46A10A55E5DF007B3713 /* 75-iChatServer.plist */,
-				5D1C46A20A55E5DF007B3713 /* iChatServer_backup */,
-				5D1C46A30A55E5DF007B3713 /* iChatServer_restore */,
-				5D1C46A40A55E5DF007B3713 /* iChatServer_verify */,
+				5DB1ED6714BE4F1400ADF263 /* 75-MessageServer.plist */,
+				5DB1ED6814BE4F1400ADF263 /* MessageServer_backup */,
+				5DB1ED6914BE4F1400ADF263 /* MessageServer_restore */,
+				5DB1ED6A14BE4F1400ADF263 /* MessageServer_verify */,
 			);
 			path = backup_restore;
 			sourceTree = "<group>";
-		};
-		5D37F0550ADD987D009CC04A /* config_cache */ = {
-			isa = PBXGroup;
-			children = (
-				5D37F0560ADD987D009CC04A /* glib */,
-			);
-			path = config_cache;
-			sourceTree = "<group>";
-		};
-		5D37F0560ADD987D009CC04A /* glib */ = {
-			isa = PBXGroup;
-			children = (
-				5D37F0570ADD987D009CC04A /* i386 */,
-				5D37F0590ADD987E009CC04A /* ppc */,
-			);
-			name = glib;
-			path = config_cache/glib;
-			sourceTree = SOURCE_ROOT;
-		};
-		5D37F0570ADD987D009CC04A /* i386 */ = {
-			isa = PBXGroup;
-			children = (
-				5D37F0580ADD987D009CC04A /* config.cache */,
-			);
-			name = i386;
-			path = config_cache/glib/i386;
-			sourceTree = SOURCE_ROOT;
-		};
-		5D37F0590ADD987E009CC04A /* ppc */ = {
-			isa = PBXGroup;
-			children = (
-				5D37F05A0ADD987E009CC04A /* config.cache */,
-			);
-			name = ppc;
-			path = config_cache/glib/ppc;
-			sourceTree = SOURCE_ROOT;
 		};
 		5D4F9BE30A5B184100AAC80D /* jabber_od_auth */ = {
 			isa = PBXGroup;
@@ -555,16 +496,13 @@
 			children = (
 				5D52DBE810A2190200984EAE /* c2s.xml.dist */,
 				5D52DBE910A2190200984EAE /* jabberd.cfg.dist */,
-				5D52DBEA10A2190200984EAE /* muc-jcr.xml.dist */,
 				5D52DBEB10A2190200984EAE /* router-filter.xml.dist */,
 				5D52DBEC10A2190200984EAE /* router-users.xml.dist */,
 				5D52DBED10A2190200984EAE /* router.xml.dist */,
 				5D52DBEE10A2190200984EAE /* s2s.xml.dist */,
 				5D52DBEF10A2190200984EAE /* sm.xml.dist */,
-				5DBEB6130EA049B900052914 /* router-filter.apple.xml */,
 				5D5D91BC0A52FD8C005089F1 /* c2s.xml */,
 				5D5D91BD0A52FD8C005089F1 /* jabberd.cfg */,
-				5DE0D2730AE955F30061E05F /* muc-jcr.xml */,
 				5D5D91BF0A52FD8C005089F1 /* router-users.xml */,
 				5D5D91C00A52FD8C005089F1 /* router.xml */,
 				5D5D91C10A52FD8C005089F1 /* s2s.xml */,
@@ -594,37 +532,11 @@
 		5DCB1DA00ACC8947002AC9A7 /* filetransfer */ = {
 			isa = PBXGroup;
 			children = (
-				5DCB1DA10ACC8947002AC9A7 /* makeargtap */,
-				5DCB1DA20ACC8947002AC9A7 /* proxy65 */,
+				5DB1ED6E14BE4F7800ADF263 /* proxy65.py */,
+				5DB1ED6F14BE4F7800ADF263 /* socks5.py */,
 			);
 			name = filetransfer;
 			path = modules/filetransfer;
-			sourceTree = SOURCE_ROOT;
-		};
-		5DCB1DA20ACC8947002AC9A7 /* proxy65 */ = {
-			isa = PBXGroup;
-			children = (
-				5DCB1DA30ACC8947002AC9A7 /* README */,
-				5DCB1DA40ACC8947002AC9A7 /* proxy65 */,
-				5DCB1DAC0ACC8947002AC9A7 /* setup.py */,
-			);
-			name = proxy65;
-			path = modules/filetransfer/proxy65;
-			sourceTree = SOURCE_ROOT;
-		};
-		5DCB1DA40ACC8947002AC9A7 /* proxy65 */ = {
-			isa = PBXGroup;
-			children = (
-				5DCB1DA50ACC8947002AC9A7 /* __init__.py */,
-				5DCB1DA60ACC8947002AC9A7 /* __init__.pyc */,
-				5DCB1DA70ACC8947002AC9A7 /* plugins.tml */,
-				5DCB1DA80ACC8947002AC9A7 /* proxy65.py */,
-				5DCB1DA90ACC8947002AC9A7 /* proxy65.pyc */,
-				5DCB1DAA0ACC8947002AC9A7 /* socks5.py */,
-				5DCB1DAB0ACC8947002AC9A7 /* socks5.pyc */,
-			);
-			name = proxy65;
-			path = modules/filetransfer/proxy65/proxy65;
 			sourceTree = SOURCE_ROOT;
 		};
 		840D7CC70F390C1F007165C8 /* jabber_od_auth_test */ = {
@@ -728,7 +640,6 @@
 				AAB294120E2D1729003B13B8 /* apple_patch */,
 				5D1C46A00A55E5DF007B3713 /* backup_restore */,
 				5D5D91BB0A52FD8C005089F1 /* cfg-apple */,
-				5D37F0550ADD987D009CC04A /* config_cache */,
 				AAB294510E2D1757003B13B8 /* migration */,
 				5DCB1D9F0ACC8947002AC9A7 /* modules */,
 				AAB294560E2D1766003B13B8 /* opensource_pkgs */,
@@ -1035,8 +946,9 @@
 			children = (
 				AAB294520E2D1757003B13B8 /* 58_jabbermigrator.pl */,
 				AAB294530E2D1757003B13B8 /* jabber_config_migrator.pl */,
-				AAB294540E2D1757003B13B8 /* jabber_data_migrator.rb */,
-				AAB294550E2D1757003B13B8 /* jabber_migration_selector.pl */,
+				5DB1ED6B14BE4F4D00ADF263 /* jabber_config_migrator.pl.8 */,
+				5DB1ED6C14BE4F4D00ADF263 /* jabber_data_migrate_2.0-2.1.pl */,
+				5DB1ED6D14BE4F4D00ADF263 /* jabber_data_migrate_2.0-2.1.pl.8 */,
 			);
 			path = migration;
 			sourceTree = "<group>";
@@ -1044,25 +956,15 @@
 		AAB294560E2D1766003B13B8 /* opensource_pkgs */ = {
 			isa = PBXGroup;
 			children = (
-				AAB294570E2D1766003B13B8 /* Proxy65-1.1.1.tar.gz */,
-				AAB294580E2D1766003B13B8 /* gettext-0.16.1.tgz */,
-				AAB294590E2D1766003B13B8 /* gettext.plist */,
-				AAB2945A0E2D1766003B13B8 /* gettext.txt */,
-				AAB2945C0E2D1766003B13B8 /* glib.plist */,
-				AAB2945D0E2D1766003B13B8 /* glib.txt */,
-				AAB2945F0E2D1767003B13B8 /* jabberd2.plist */,
-				AAB294600E2D1767003B13B8 /* jabberd2.txt */,
+				5DB1ED7514BE4FC800ADF263 /* jabberd-2.2.14.tar.bz2 */,
+				5DB1ED7614BE4FC800ADF263 /* Proxy65-1.2.0.tar.gz */,
+				5DB1ED7714BE4FC800ADF263 /* udns_0.0.9.tgz */,
 				AAB294610E2D1767003B13B8 /* libidn-0.6.14.tgz */,
-				AAB294620E2D1767003B13B8 /* libidn.plist */,
-				AAB294630E2D1767003B13B8 /* libidn.txt */,
-				AAB294640E2D1767003B13B8 /* mu-conference.8 */,
-				AAB294650E2D1767003B13B8 /* mu-conference.plist */,
-				AAB294660E2D1767003B13B8 /* mu-conference.txt */,
-				AAB294680E2D1767003B13B8 /* pkg-config-0.23.tgz */,
-				AAB294690E2D1767003B13B8 /* pkg-config.plist */,
-				AAB2946A0E2D1767003B13B8 /* pkg-config.txt */,
-				AAB2946B0E2D1767003B13B8 /* proxy65.plist */,
-				AAB2946C0E2D1767003B13B8 /* proxy65.txt */,
+				5DB1ED7014BE4FC800ADF263 /* ChatServer_jabberd.txt */,
+				5DB1ED7114BE4FC800ADF263 /* ChatServer_libidn.txt */,
+				5DB1ED7214BE4FC800ADF263 /* ChatServer_proxy65.txt */,
+				5DB1ED7314BE4FC800ADF263 /* ChatServer_udns.txt */,
+				5DB1ED7414BE4FC800ADF263 /* ChatServer.plist */,
 			);
 			path = opensource_pkgs;
 			sourceTree = "<group>";
@@ -1070,11 +972,8 @@
 		AAB2946D0E2D1776003B13B8 /* tools */ = {
 			isa = PBXGroup;
 			children = (
-				AAB2946E0E2D1776003B13B8 /* ichatserver_init_tool */,
-				AAB2946F0E2D1776003B13B8 /* ichatserver_init_tool.8 */,
 				AAB294700E2D1776003B13B8 /* muc_room_config.rb */,
 				AAB294710E2D1776003B13B8 /* patch_jabberd.pl */,
-				AAB294720E2D1776003B13B8 /* xmpp4r.for_muc_room_tool.tar.gz */,
 			);
 			path = tools;
 			sourceTree = "<group>";
@@ -1415,6 +1314,7 @@
 		};
 		1DEB919408733D9F0010E9CD /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 5D688083143FB73A0034C103 /* ServerBuildVariables.xcconfig */;
 			buildSettings = {
 				ARCHS = (
 					x86_64,
@@ -1428,6 +1328,7 @@
 		};
 		1DEB919508733D9F0010E9CD /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 5D688083143FB73A0034C103 /* ServerBuildVariables.xcconfig */;
 			buildSettings = {
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
@@ -1703,7 +1604,7 @@
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = NO;
 				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/AppKit.framework/Headers/AppKit.h";
-				INSTALL_PATH = /usr/local/bin;
+				INSTALL_PATH = "$(SERVER_INSTALL_PATH_PREFIX)/usr/bin";
 				OTHER_CFLAGS = (
 					"-DJAB_VERSION_BUILD=276",
 					"-DDEBUG",
@@ -1729,7 +1630,7 @@
 				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/AppKit.framework/Headers/AppKit.h";
 				INSTALL_GROUP = wheel;
 				INSTALL_OWNER = root;
-				INSTALL_PATH = /usr/bin;
+				INSTALL_PATH = "$(SERVER_INSTALL_PATH_PREFIX)/usr/bin";
 				OTHER_CFLAGS = "-DJAB_VERSION_BUILD=276";
 				OTHER_LDFLAGS = "";
 				PREBINDING = NO;

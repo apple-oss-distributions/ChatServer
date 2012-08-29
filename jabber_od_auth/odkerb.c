@@ -295,6 +295,7 @@ odkerb_copy_user_record_with_alt_security_identity(CFStringRef principalID, ODRe
     CFErrorRef cfError = NULL;
     ODQueryRef cfQueryRef = NULL;
     CFArrayRef cfUserRecords = NULL;
+    CFStringRef cfUserUUID = NULL;
     int mbrErr = 0;
     uuid_t user_uuid = { 0 };
     uuid_string_t uuidStr;
@@ -316,7 +317,7 @@ odkerb_copy_user_record_with_alt_security_identity(CFStringRef principalID, ODRe
         goto failure;
     }
     uuid_unparse_upper(user_uuid, uuidStr);
-    CFStringRef cfUserUUID = CFStringCreateWithFormat(kCFAllocatorDefault, NULL, CFSTR("%s"), uuidStr);
+    cfUserUUID = CFStringCreateWithFormat(kCFAllocatorDefault, NULL, CFSTR("%s"), uuidStr);
     cfQueryRef = ODQueryCreateWithNode(kCFAllocatorDefault,
                                        gSearchNode,
                                        kODRecordTypeUsers,
@@ -352,6 +353,7 @@ failure:
     CF_SAFE_RELEASE(cfAltSecurityIdentity);
     CF_SAFE_RELEASE(cfQueryRef);
     CF_SAFE_RELEASE(cfUserRecords);
+    CF_SAFE_RELEASE(cfUserUUID);
 
     return retval;
 }

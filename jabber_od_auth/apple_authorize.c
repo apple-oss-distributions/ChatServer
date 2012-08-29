@@ -34,6 +34,7 @@
 
 #include "apple_authorize.h"
 
+#include <sys/stat.h>
 #include <membershipPriv.h>
 #include <membership.h>
 #include <errno.h>

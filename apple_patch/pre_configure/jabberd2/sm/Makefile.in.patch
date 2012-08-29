@@ -1,0 +1,11 @@
+--- /tmp/jabberd-2.2.17/sm/Makefile.in	2012-08-26 04:59:55.000000000 -0700
++++ ./jabberd2/sm/Makefile.in	2012-08-28 18:49:00.000000000 -0700
+@@ -20,7 +20,7 @@
+ VPATH = @srcdir@
+ pkgdatadir = $(datadir)/@PACKAGE@
+ pkgincludedir = $(includedir)/@PACKAGE@
+-pkglibdir = $(libdir)/@PACKAGE@
++pkglibdir = $(libdir)
+ pkglibexecdir = $(libexecdir)/@PACKAGE@
+ am__cd = CDPATH="$${ZSH_VERSION+.}$(PATH_SEPARATOR)" && cd
+ install_sh_DATA = $(install_sh) -c -m 644

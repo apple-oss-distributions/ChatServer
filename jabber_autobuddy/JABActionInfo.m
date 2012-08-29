@@ -112,7 +112,7 @@
 #define OPTINFO_HTEXT_MOVEDOMAIN  @"Move all users from one jabber domain to another."
 #define OPTINFO_HTEXT_VERBOSE     @"Enable verbose (detailed) program output to standard error."
 #define OPTINFO_HTEXT_DBPATH1     @"DEBUG: Directs SQL queries to the selected database."
-#define OPTINFO_HTEXT_DBPATH2     @"       (default: /Library/Server/iChat/Data/sqlite/jabberd2.db)"
+#define OPTINFO_HTEXT_DBPATH2     @"       (default: /Library/Server/Messages/Data/sqlite/jabberd2.db)"
 #define OPTINFO_HTEXT_SHOWSQL     @"DEBUG: Display all generated SQL queries."
 #define OPTINFO_HTEXT_NOWRITE     @"DEBUG: Skip execution of queries which modify the database."
 #define OPTINFO_HTEXT_SUMMARY     @"DEBUG: Display a summary of database activity by query kind."

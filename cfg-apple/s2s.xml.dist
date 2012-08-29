@@ -73,6 +73,11 @@
     <!--
     <file>/usr/var/jabberd/log/s2s.log</file>
     -->
+
+    <!-- Filename of the debug logfile -->
+    <!--
+    <debug>/usr/var/jabberd/log/debug-${id}.log</debug>
+    -->
   </log>
 
   <!-- Local network configuration -->
@@ -85,7 +90,10 @@
     <!-- Multihomed machines (with more than one interface and IP address)
          need to specify outgoing S2S connections interface/address.
          If not set, the <ip> section address above is used. -->
-    <origin>0.0.0.0</origin>
+    <origins>
+      <ip>::</ip>
+      <ip>0.0.0.0</ip>
+    </origins>
 
     <!-- Secret used to generate dialback keys. If you have more than
          one s2s instance configured, make sure that this is the same on
@@ -121,22 +129,6 @@
     <!--<cachain>/etc/certificates/cachain.pem</cachain>-->
 
   </local>
-
-  <security>
-    <!-- If enabled, only TLS-encrypted connections will be accepted (dialback
-         will not be attempted unless TLS has been established).
-         0 = disabled, 1 = enabled.  -->
-    <require_tls>0</require_tls>
-
-    <!-- If enabled, only allow s2s connections with servers listed in the
-         whitelist_domain preference.    -->
-    <enable_whitelist>0</enable_whitelist>
-
-    <!-- If enable_whitelist is enabled, only s2s connections with the domains listed
-         will be accepted.  Multiple listings are possible (use seperate <whitelist_domain> tags.) -->
-        <!-- ex. <whitelist_domain>talk.google.com</whitelist_domain>
-                <whitelist_domain>jabber.org</whitelist_domain> -->
-  </security>
 
   <!-- input/output settings -->
   <io>
@@ -269,7 +261,7 @@
          as A records. This is needed if you want s2s to use IPv6.
          Connection attempts will be made to all IPv6 hosts before trying
          IPv4 (see bad host timeout below). -->
-     <resolve-ipv6/>
+    <resolve-ipv6/>
 
     <!-- Minimum time that DNS lookup results are cached (overrides max below). -->
     <min-ttl>30</min-ttl>
@@ -301,6 +293,20 @@
        existing outgoing connections. This is a potential security risk
        as the SSL connection from the first domain will be re-used too. -->
   <!--<out-reuse-conn/>-->
+
+  <security>
+    <!-- Require TLS secured S2S connections -->
+      <!--<require_tls/>-->
+
+    <!-- Domain whitelisting
+         When defined, only whitelisted domains are allowed to connect -->
+    <!--
+    <whitelist_domain>domain1.tld</whitelist_domain>
+    <whitelist_domain>domain2.tld</whitelist_domain>
+    <whitelist_domain>other.tld</whitelist_domain>
+    -->
+    <enable_whitelist>0</enable_whitelist>
+  </security>
 </s2s>
 <!--
   vim: syntax=xml

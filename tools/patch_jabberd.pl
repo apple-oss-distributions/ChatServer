@@ -2,7 +2,13 @@
 #
 # Tool that creates or applies patches for jabberd2 source.  
 #
-# Apple Inc. (c) 2008 - All rights reserved.
+# Copyright (c) 2008-2012 Apple Inc. All Rights Reserved.
+#
+# IMPORTANT NOTE: This file is licensed only for use on Apple-branded
+# computers and is subject to the terms and conditions of the Apple Software
+# License Agreement accompanying the package this file is a part of.
+# You may not port this file to another platform without Apple's written consent.
+
 #
 # NOTE: If you update to a new jabberd build, update the $JABBERD_DIST_DIR constant.
 
@@ -27,7 +33,7 @@ $SILENT = 0;
 $LOGGING = 1;
 $PATCHFILE_EXT = ".patch";
 #This may change from build to build and we can't predict.
-$JABBERD_DIST_DIR = "jabberd-2.2.13";
+$JABBERD_DIST_DIR = "jabberd-2.2.17";
 
 sub _usage() {
     print "$g_my_name: Tool for applying or creating patch files for jabberd source\n";
@@ -56,8 +62,8 @@ sub _usage() {
     print "		-s     :	Silent mode\n";
     print "\n";
 	print "Examples:\n";
-	print "$g_my_name -c -n $g_default_source_dir -f ./opensource_pkgs/jabberd-2.2.13.tar.bz2 -p $g_default_patch_dir\n";
-	print "$g_my_name -a -n $g_default_source_dir -f ./opensource_pkgs/jabberd-2.2.13.tar.bz2 -p $g_default_patch_dir\n";
+	print "$g_my_name -c -n $g_default_source_dir -f ./opensource_pkgs/jabberd-2.2.17.tar.gz -p $g_default_patch_dir\n";
+	print "$g_my_name -a -n $g_default_source_dir -f ./opensource_pkgs/jabberd-2.2.17.tar.gz -p $g_default_patch_dir\n";
     print "\n";
 }
 

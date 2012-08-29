@@ -3,7 +3,7 @@
 <users>
   <user>
     <name>jabberd</name>
-    <secret>@ROUTERPASSWORD@</secret>
+    <secret>secret</secret>
   </user>
 </users>
 <!--

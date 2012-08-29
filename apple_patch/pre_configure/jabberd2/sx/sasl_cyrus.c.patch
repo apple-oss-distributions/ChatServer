@@ -1,5 +1,5 @@
---- /tmp/jabberd-2.2.13/sx/sasl_cyrus.c	2011-02-23 08:24:34.000000000 -0800
-+++ ./jabberd2/sx/sasl_cyrus.c	2011-03-01 15:35:40.000000000 -0800
+--- /tmp/jabberd-2.2.17/sx/sasl_cyrus.c	2011-10-22 12:56:00.000000000 -0700
++++ ./jabberd2/sx/sasl_cyrus.c	2012-08-28 18:49:00.000000000 -0700
 @@ -20,11 +20,17 @@
  
  /* SASL authentication handler */
@@ -29,7 +29,7 @@
  } *_sx_sasl_data_t;
  
  
-@@ -231,9 +239,63 @@ static int _sx_sasl_checkpass(sasl_conn_
+@@ -231,9 +239,64 @@ static int _sx_sasl_checkpass(sasl_conn_
  
  static int _sx_sasl_canon_user(sasl_conn_t *conn, void *ctx, const char *user, unsigned ulen, unsigned flags, const char *user_realm, char *out_user, unsigned out_umax, unsigned *out_ulen) {
      char *buf;
@@ -52,7 +52,8 @@
 +        // Reformat the user argument for odkerb_get_im_handle
 +        // (Remove the default realm from string if necessary)
 +        char adjusted_user[1024];
-+        char *s = strdup(user_null_term);
++        char *p;
++        char *s = p = strdup(user_null_term);
 +        if (s) {
 +            char *c = strsep(&s, "@");
 +            if (c) {
@@ -71,10 +72,10 @@
 +                }
 +            } else {
 +                _sx_debug(ZONE, "Error getting SASL argument \"user\"");
-+                free(s);
++                free(p);
 +                return SASL_BADAUTH;
 +            }
-+            free(s);
++            free(p);
 +        } else {
 +            _sx_debug(ZONE, "Error copying SASL argument \"user\"");
 +            return SASL_BADAUTH;
@@ -94,7 +95,7 @@
          sd->ctx->cb(sx_sasl_cb_GEN_AUTHZID, NULL, (void **)&buf, sd->stream, sd->ctx->cbarg);
          strncpy(out_user, buf, out_umax);
          out_user[out_umax]='\0';
-@@ -341,6 +403,8 @@ static int _sx_sasl_wio(sx_t s, sx_plugi
+@@ -341,6 +404,8 @@ static int _sx_sasl_wio(sx_t s, sx_plugi
      sasl_conn_t *sasl;
      int *x, len, pos, reslen, maxbuf;
      char *out, *result;
@@ -103,7 +104,7 @@
  
      sasl = ((_sx_sasl_data_t) s->plugin_data[p->index])->sasl;
  
-@@ -362,7 +426,13 @@ static int _sx_sasl_wio(sx_t s, sx_plugi
+@@ -362,7 +427,13 @@ static int _sx_sasl_wio(sx_t s, sx_plugi
          if((buf->len - pos) < maxbuf)
              maxbuf = buf->len - pos;
  
@@ -118,7 +119,7 @@
          
          result = (char *) realloc(result, sizeof(char) * (reslen + len));
          memcpy(&result[reslen], out, len);
-@@ -398,8 +468,9 @@ static int _sx_sasl_rio(sx_t s, sx_plugi
+@@ -398,8 +469,9 @@ static int _sx_sasl_rio(sx_t s, sx_plugi
      if (sasl_decode(sasl, buf->data, buf->len, (const char **) &out, &len)
        != SASL_OK) {
        /* Fatal error */
@@ -129,7 +130,7 @@
        return -1;
      }
      
-@@ -412,15 +483,25 @@ static int _sx_sasl_rio(sx_t s, sx_plugi
+@@ -412,15 +484,25 @@ static int _sx_sasl_rio(sx_t s, sx_plugi
  }
  
  /** move the stream to the auth state */
@@ -159,7 +160,7 @@
  
      method = (char *) malloc(sizeof(char) * (strlen(buf) + 17));
      sprintf(method, "SASL/%s", buf);
-@@ -432,7 +513,12 @@ void _sx_sasl_open(sx_t s, sasl_conn_t *
+@@ -432,7 +514,12 @@ void _sx_sasl_open(sx_t s, sasl_conn_t *
      }
  
      /* and the authenticated id */
@@ -172,7 +173,7 @@
  
      if (s->type == type_SERVER) {
          /* Now, we need to turn the id into a JID 
-@@ -441,16 +527,21 @@ void _sx_sasl_open(sx_t s, sasl_conn_t *
+@@ -441,16 +528,21 @@ void _sx_sasl_open(sx_t s, sasl_conn_t *
           * XXX - This will break with s2s SASL, where the authzid is a domain
           */
  
@@ -197,7 +198,7 @@
              *c = '\0';
          if (s->req_to && strchr(authzid, '@') == 0) {
              strcat(authzid, "@");
-@@ -461,10 +552,15 @@ void _sx_sasl_open(sx_t s, sasl_conn_t *
+@@ -461,10 +553,15 @@ void _sx_sasl_open(sx_t s, sasl_conn_t *
          sx_auth(s, method, authzid);
          free(authzid);
      } else {
@@ -214,7 +215,7 @@
  }
  
  /** make the stream authenticated second time round */
-@@ -558,6 +654,7 @@ static void _sx_sasl_stream(sx_t s, sx_p
+@@ -558,6 +655,7 @@ static void _sx_sasl_stream(sx_t s, sx_p
              sd->sasl = sasl;
              sd->stream = s;
              sd->ctx = ctx;
@@ -222,7 +223,7 @@
  
              _sx_debug(ZONE, "sasl context initialised for %d", s->tag);
  
-@@ -569,6 +666,7 @@ static void _sx_sasl_stream(sx_t s, sx_p
+@@ -569,6 +667,7 @@ static void _sx_sasl_stream(sx_t s, sx_p
      }
  
      sasl = ((_sx_sasl_data_t) s->plugin_data[p->index])->sasl;
@@ -230,7 +231,7 @@
  
      /* are we auth'd? */
      if (sasl_getprop(sasl, SASL_MECHNAME, (void *) &mech) == SASL_NOTDONE) {
-@@ -577,7 +675,7 @@ static void _sx_sasl_stream(sx_t s, sx_p
+@@ -577,7 +676,7 @@ static void _sx_sasl_stream(sx_t s, sx_p
      }
  
      /* otherwise, its auth time */
@@ -239,7 +240,7 @@
  }
  
  static void _sx_sasl_features(sx_t s, sx_plugin_t p, nad_t nad) {
-@@ -744,7 +842,7 @@ static void _sx_sasl_notify_success(sx_t
+@@ -744,7 +843,7 @@ static void _sx_sasl_notify_success(sx_t
  /** process handshake packets from the client */
  static void _sx_sasl_client_process(sx_t s, sx_plugin_t p, char *mech, char *in, int inlen) {
      _sx_sasl_data_t sd = (_sx_sasl_data_t) s->plugin_data[p->index];
@@ -248,7 +249,7 @@
      int buflen, outlen, ret;
  
      /* decode the response */
-@@ -757,15 +855,18 @@ static void _sx_sasl_client_process(sx_t
+@@ -757,10 +856,12 @@ static void _sx_sasl_client_process(sx_t
      }
  
      /* process the data */
@@ -264,12 +265,6 @@
              _sx_debug(ZONE, "response send before auth request enabling mechanism (decoded: %.*s)", buflen, buf);
              _sx_nad_write(s, _sx_sasl_failure(s, _sasl_err_MECH_TOO_WEAK), 0);
              if(buf != NULL) free(buf);
-             return;
-         }
-+
-         ret = sasl_server_step(sd->sasl, buf, buflen, (const char **) &out, &outlen);
-     }
- 
 @@ -782,6 +883,16 @@ static void _sx_sasl_client_process(sx_t
          ((sx_buf_t) s->wbufq->front->data)->notify = _sx_sasl_notify_success;
          ((sx_buf_t) s->wbufq->front->data)->notify_arg = (void *) p;
