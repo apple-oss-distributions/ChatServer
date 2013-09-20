@@ -1,11 +1,16 @@
-#!/usr/bin/perl -w
-# Copyright (c) 2010-2012 Apple Inc. All Rights Reserved.
+#!/usr/bin/perl
+#
+# 58_jabbermigrator.pl
+#
+# Author:: Apple Inc.
+# Documentation:: Apple Inc.
+# Copyright (c) 2010-2013 Apple Inc. All Rights Reserved.
 #
 # IMPORTANT NOTE: This file is licensed only for use on Apple-branded
 # computers and is subject to the terms and conditions of the Apple Software
 # License Agreement accompanying the package this file is a part of.
 # You may not port this file to another platform without Apple's written consent.
-
+# License:: All rights reserved.
 ## Migration Script for Message Server
 
 ##################   Input Parameters  #######################
@@ -13,10 +18,7 @@
 # --sourceRoot <path>	The path to the root of the system to migrate
 # --sourceType <System | TimeMachine>	Gives the type of the migration source, whether it's a runnable system or a 
 #                                       Time Machine backup.
-# --sourceVersion <ver>	The version number of the old system (like 10.6.x or 10.7). Since we support migration from 10.6, 
-#                       10.7, and other 10.8 installs, it's useful to know this information, and it would be easier for me to figure 
-#                       it out once and pass it on to each script than to have each script have to figure it out itself.
-# --targetRoot <path>	The path to the root of the new system. Pretty much always "/"
+# --sourceVersion <ver>	The version number of the old system (like 10.6.x or 10.7).
 # --language <lang> A language identifier, such as \"en.\" Long running scripts should return a description of what they're doing
 #                   (\"Migrating Open Directory users\"), and possibly provide status update messages along the way. These messages
 #                   need to be localized (which is not necessarily the server running the migration script).
@@ -75,6 +77,7 @@ my $g_sqlite_db_path_10_7 = "/Library/Server/iChat/Data/sqlite/jabberd2.db";
 my $g_sqlite_db_path = "/Library/Server/Messages/Data/sqlite/jabberd2.db";
 my $g_bundle_config_path_pre_10_8 = "/Library/Preferences/com.apple.ichatserver.plist";
 my $g_bundle_config_path = "/Library/Preferences/com.apple.messageserver.plist";
+my $g_bundle_config_path_new = "/Library/Server/Messages/Config/com.apple.messageserver.plist";
 my $g_system_plist_path = "/System/Library/CoreServices/SystemVersion.plist";
 my $g_server_plist_path = "/System/Library/CoreServices/ServerVersion.plist";
 my $g_launchd_config_path_jabberd = "/Applications/Server.app/Contents/ServerRoot/System/Library/LaunchDaemons/org.jabber.jabberd.plist";
@@ -88,7 +91,7 @@ my $g_initialize_script_path = "/Applications/Server.app/Contents/ServerRoot/usr
 my $g_purge = "0";		# Default is don't purge
 my $g_source_root = "/Previous System";
 my $g_source_type = "";
-my $g_source_version = "";  # This is the version number of the old system passed into us by Server Assistant. [10.5.x, 10.6.x, or 10.7.x]
+my $g_source_version = "";  # This is the version number of the old system passed into us by Server Assistant. [10.6.x, 10.7.x, or 10.8.x]
 my $g_target_root = "/";
 my $g_language = "en";	# Should be Tier-0 only in iso format [en, fr, de, ja], we default this to English, en.
 my $g_status = 0;		# 0 = success, > 0 on failure
@@ -100,16 +103,12 @@ my $DEBUG = 0;
 my $FUNC_LOG = 0;
 
 ############################## Version Consts  ##############################
-my $SYS_VERS = "0";   #10.6.x
-my $SYS_MAJOR = "0";  #10
-my $SYS_MINOR = "0";  # 6
-my $SYS_UPDATE = "-"; #11
 my $SRV_VERS = "0";   #10.6.x
 my $SRV_MAJOR = "0";  #10
 my $SRV_MINOR = "0";  # 6
-my $SRV_UPDATE = "-"; #8
+my $SRV_UPDATE = "-"; # 8
 my $MINVER = "10.6";  # => 10.6
-my $MAXVER = "10.8";  # <  10.8
+my $MAXVER = "10.9";  # <=  10.9
 
 if ( (defined($ENV{DEBUG})) && ($ENV{DEBUG} eq 1) ) {$DEBUG = '1';}
 if ( (defined($ENV{FUNC_LOG})) && ($ENV{FUNC_LOG} eq 1) ) {$FUNC_LOG = '1';}
@@ -224,7 +223,7 @@ sub restore_and_set_state()
 
 	my $ret;
 
-	#10.6,10.7,10.8 -> 10.8 migration
+	#10.6,10.7,10.8,10.9 -> 10.9 migration
 	# Configs
 	if ($DEBUG) {
 		if (${SRV_MINOR} eq "6" || ${SRV_MINOR} eq "7") {
@@ -319,6 +318,19 @@ CREATE INDEX i_pubrosterg_owner ON "published-roster-groups"("collection-owner")
 EOF
 			close(SQLITE) || &log_message("Error, $SQLITE3 returned an error.  Adding new tables to jabberd database possibly failed.");
 		}
+
+		# For all upgrades, add the autobuddy group GUIDs table
+		$ret = open(SQLITE, "|$SQLITE3 \"${effective_target_root}${g_sqlite_db_path}\"");
+		unless ($ret) {
+			&log_message("Error, could not open database file \"${effective_target_root}${g_sqlite_db_path}\" using $SQLITE3 : $!");
+			last;
+		}
+		print SQLITE <<"EOF";
+CREATE TABLE "autobuddy-guids" (
+		"guid" TEXT NOT NULL,
+		"object-sequence" INTEGER PRIMARY KEY );
+EOF
+		close(SQLITE) || &log_message("Error, $SQLITE3 returned an error.  Adding new table to jabberd database possibly failed.");
 	}} while (0);  # not a loop
 
 	# Handle mu-conference -> Rooms migration (persistent room configuration files)
@@ -363,7 +375,7 @@ EOF
 				}
 			}
 		}} while (0);  # not a loop
-	} elsif (${SRV_MINOR} eq "8") {
+	} elsif (${SRV_MINOR} eq "8" || ${SRV_MINOR} eq "9") {
 		do {{  # not a loop
 			# Rooms -> Rooms
 			
@@ -404,7 +416,7 @@ EOF
 		}
 
 
-		my $target_archive_dir = qx(${PLISTBUDDY} -c "Print :savedChatsLocation" "${g_target_root}${g_bundle_config_path}");
+		my $target_archive_dir = qx(${PLISTBUDDY} -c "Print :savedChatsLocation" "${g_target_root}${g_bundle_config_path_new}");
 		chomp($target_archive_dir);
 		if (! -e $target_archive_dir) {
 			&log_message("Could not locate target directory for message archive migration");
@@ -509,7 +521,7 @@ sub ensure_message_server_initialized()
 	&log_message("ensure_message_server_initialized := S");
 
 	if (-e $g_bundle_config_path) {
-		my $message_server_initialized = qx(${PLISTBUDDY} -c "Print :initialized" "${g_bundle_config_path}");
+		my $message_server_initialized = qx(${PLISTBUDDY} -c "Print :initialized" "${g_bundle_config_path_new}");
 		chomp($message_server_initialized);
 		if ($message_server_initialized eq "true") {
 			&log_message("Already initialized");
@@ -527,7 +539,7 @@ sub ensure_message_server_initialized()
 	&log_message("getState returned: $ret");
 
 	if (-e $g_bundle_config_path) {
-		my $message_server_initialized = qx(${PLISTBUDDY} -c "Print :initialized" "${g_bundle_config_path}");
+		my $message_server_initialized = qx(${PLISTBUDDY} -c "Print :initialized" "${g_bundle_config_path_new}");
 		chomp($message_server_initialized);
 		if ($message_server_initialized ne "true") {
 			&log_message("Error: Cannot initialize service");
@@ -602,7 +614,7 @@ sub validate_options_and_dispatch()
 					$valid = 1;
 					&migrate_upgrade();
 				} else {
-					print("Did not supply a valid version for the --sourceVersion parameter, needs to be >= 10.6.0 and <= 10.8.x\n");
+					print("Did not supply a valid version for the --sourceVersion parameter, needs to be >= 10.6.0 and <= 10.9.x\n");
 					&usage(); exit(1);
 				}
 			} else {
@@ -627,9 +639,7 @@ sub usage()
 	print("--sourceRoot <path> The path to the root of the system to migrate" . "\n");
 	print("--sourceType <System | TimeMachine> Gives the type of the migration source, whether it's a runnable system or a " . "\n");
 	print("                  Time Machine backup." . "\n");
-	print("--sourceVersion <ver> The version number of the old system (like 10.6.x or 10.7). Since we support migration from 10.6, " . "\n");
-	print("                  10.7, and other 10.8 installs, it's useful to know this information, and it would be easier for me to figure " . "\n");
-	print("                  it out once and pass it on to each script than to have each script have to figure it out itself." . "\n");
+	print("--sourceVersion <ver> The version number of the old system" . "\n");
 	print("--targetRoot <path> The path to the root of the new system. Pretty much always \"\/\"" . "\n");
 	print("--language <lang> A language identifier, such as \"en.\" Long running scripts should return a description of what they're doing" . "\n");
 	print("                  (\"Migrating Open Directory users\"), and possibly provide status update messages along the way. These messages" . "\n");

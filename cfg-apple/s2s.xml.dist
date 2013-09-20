@@ -85,7 +85,7 @@
     <!-- IP and port to listen for incoming s2s connections on
                                            (default: 0.0.0.0, 5269) -->
     <ip>::</ip>
-    <port>5269</port>
+    <port>0</port>
 
     <!-- Multihomed machines (with more than one interface and IP address)
          need to specify outgoing S2S connections interface/address.

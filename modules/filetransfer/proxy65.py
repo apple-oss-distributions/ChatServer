@@ -27,7 +27,7 @@ $Id: proxy65.py 34 2008-12-14 12:48:21Z fabio.forno@gmail.com $
 
 -------------------------------------------------------------------------
 
-Portions Copyright 2008-2012 Apple, Inc.  All rights reserved.
+Portions Copyright 2008-2013 Apple, Inc.  All rights reserved.
 """
 import os
 import sys, socket
@@ -44,7 +44,7 @@ except ImportError:
     raise ImportError("Import failed for twisted 10.2 workaround")
 import socks5
 
-configPath = '/Library/Preferences/com.apple.Proxy65.plist';
+configPath = '/Library/Server/Messages/Config/com.apple.Proxy65.plist';
 config = {'jid':'',
          'secret':'',
          'rhost':'',

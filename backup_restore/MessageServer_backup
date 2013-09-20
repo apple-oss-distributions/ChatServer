@@ -1,10 +1,13 @@
 #!/usr/bin/perl
-# Copyright (c) 2012 Apple Inc. All Rights Reserved.
+# Author:: Apple Inc.
+# Documentation:: Apple Inc.
+# Copyright (c) 2012-2013 Apple Inc. All Rights Reserved.
 #
 # IMPORTANT NOTE: This file is licensed only for use on Apple-branded
 # computers and is subject to the terms and conditions of the Apple Software
 # License Agreement accompanying the package this file is a part of.
 # You may not port this file to another platform without Apple's written consent.
+# License:: All rights reserved.
 
 #################################   Constants  #################################
 $ECHO = "/bin/echo";
@@ -12,7 +15,7 @@ $MKDIR = "/bin/mkdir";
 $MKTEMP_PATH = "/usr/bin/mktemp";
 $PBUDDY = "/usr/libexec/PlistBuddy";
 $SQLITE = "/usr/bin/sqlite3";
-$TAR = "/usr/bin/gnutar";
+$TAR = "/usr/bin/tar";
 $SBS_CONF = "/Applications/Server.app/Contents/ServerRoot/private/etc/server_backup";
 $SBSProgressLogFile = "/private/var/log/server_backup/sbs_progress.log";
 $tmpPath = "/private/var/jabberd/tmp";
@@ -137,9 +140,9 @@ sub Backup()
         }
 
 		if ($VERBOSE) {
-			$cmd = "$TAR --ignore-failed-read -cvzf \"$configTarPath\"";
+			$cmd = "$TAR -cvzf \"$configTarPath\"";
 		} else {
-			$cmd = "$TAR --ignore-failed-read -czf \"$configTarPath\"";
+			$cmd = "$TAR -czf \"$configTarPath\"";
 		}
 		foreach $confFile (@configurationFiles) {
 			# Not quoting confFile- allow for wildcard expansion since there may be any number of sm.xml files
@@ -208,10 +211,10 @@ sub Backup()
 			chdir($origCWD);
 			my $roomsDataTarPath = $SBS_PATH."/"."MessageServer_Rooms.data.tar.gz";
 			if ($VERBOSE) {
-				$cmd = "$TAR --ignore-failed-read -cpvzf \"$roomsDataTarPath\" \"$roomsDirPath\" \"$roomsLogDirPath\"";
+				$cmd = "$TAR -cpvzf \"$roomsDataTarPath\" \"$roomsDirPath\" \"$roomsLogDirPath\"";
 				print "Executing command: $cmd\n";
 			} else {
-				$cmd = "$TAR --ignore-failed-read -cpzf \"$roomsDataTarPath\" \"$roomsDirPath\" \"$roomsLogDirPath\"";
+				$cmd = "$TAR -cpzf \"$roomsDataTarPath\" \"$roomsDirPath\" \"$roomsLogDirPath\"";
 			}
 			system($cmd);
 			chdir($origCWD);
@@ -319,10 +322,10 @@ sub Size()
 		chomp($roomsLogDirPath);
 
 		if ($VERBOSE) {
-			$cmd = "$TAR --ignore-failed-read -cvzf \"$dataTarPath\" \"$jabberDataTmpDir/$sqlFilePath\" \"$roomsDirPath\" \"$roomsLogDirPath\"";
+			$cmd = "$TAR -cvzf \"$dataTarPath\" \"$jabberDataTmpDir/$sqlFilePath\" \"$roomsDirPath\" \"$roomsLogDirPath\"";
 			&_log($OUTPUT_PRINT, "Executing command: $cmd\n");
 		} else {
-			$cmd = "$TAR --ignore-failed-read -czf \"$dataTarPath\" \"$jabberDataTmpDir/$sqlFilePath\" \"$roomsDirPath\" \"$roomsLogDirPath\"";
+			$cmd = "$TAR -czf \"$dataTarPath\" \"$jabberDataTmpDir/$sqlFilePath\" \"$roomsDirPath\" \"$roomsLogDirPath\"";
 		}
 		system($cmd);
 		my ($dev, $ino, $mode, $nlink, $uid, $gid, $rdev, $size, $atime, $mtime, $ctime, $blksize, $blocks) = stat($dataTarPath);

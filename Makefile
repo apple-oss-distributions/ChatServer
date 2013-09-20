@@ -67,6 +67,7 @@ MAN_DIR	= usr/share/man
 INFO_DIR	= usr/share/info
 MIGRATION_EXTRAS_DIR	= System/Library/ServerSetup/MigrationExtras
 PROMOTION_EXTRAS_DIR	= System/Library/ServerSetup/PromotionExtras
+COMMON_EXTRAS_DIR	= System/Library/ServerSetup/CommonExtras
 RESTORE_EXTRAS_DIR	= System/Library/ServerSetup/RestoreExtras
 JABBERD_BIN_DIR=$(SERVER_INSTALL_PATH_PREFIX)/usr/libexec/jabberd
 
@@ -405,6 +406,7 @@ authreg_apple_od.so \
 mod_active.0.so \
 mod_amp.0.so \
 mod_announce.0.so \
+mod_autobuddy.0.so \
 mod_deliver.0.so \
 mod_disco.0.so \
 mod_echo.0.so \
@@ -505,9 +507,10 @@ jabberd2/makeinstall:
 	$(SILENT) $(INSTALL) -m 755 -o root -g wheel $(OBJROOT)/$(JABBERD2_INSTALL_DIR)/$(firstword $(JABBERD2_ARCHS))/$(JABBERD_BIN_DIR)/jabberd $(OBJROOT)/$(JABBERD2_INSTALL_DIR)/$(JABBERD_BIN_DIR)
 	$(SILENT) $(MKDIRS) $(SYMROOT)/$(JABBERD_MODULES_DIR)
 	$(SILENT) $(MKDIRS) $(OBJROOT)/$(JABBERD2_INSTALL_DIR)/$(JABBERD_MODULES_DIR)
+# we don't want to ship .la files
+	$(SILENT) $(RM) -f $(OBJROOT)/$(JABBERD2_INSTALL_DIR)/$(firstword $(JABBERD2_ARCHS))/$(JABBERD_MODULES_DIR)/*.la
 # authreg_sqlite gets built, but we don't want it.
 	$(SILENT) $(RM) -f $(OBJROOT)/$(JABBERD2_INSTALL_DIR)/$(firstword $(JABBERD2_ARCHS))/$(JABBERD_MODULES_DIR)/authreg_sqlite.so
-	$(SILENT) $(RM) -f $(OBJROOT)/$(JABBERD2_INSTALL_DIR)/$(firstword $(JABBERD2_ARCHS))/$(JABBERD_MODULES_DIR)/authreg_sqlite.la
 # Copy symlinks for jabberd2 modules
 	$(SILENT) $(DITTO) $(OBJROOT)/$(JABBERD2_INSTALL_DIR)/$(firstword $(JABBERD2_ARCHS))/$(JABBERD_MODULES_DIR) $(OBJROOT)/$(JABBERD2_INSTALL_DIR)/$(JABBERD_MODULES_DIR)
 #  This is not working, but it would be nice to make the list of shared libs dynamic based on what jabberd2 builds.
@@ -559,7 +562,7 @@ jabberd2/clean-all:
 
 BACKUPRESTORE_SRC_DIR=backup_restore
 MIGRATION_SRC_DIR=migration
-PROMOTION_SRC_DIR=promotion
+PROMOTION_SRC_DIR=common_extras
 RESTORE_SRC_DIR=restore_extras
 INITIALIZATION_SRC_DIR=initialization
 
@@ -669,9 +672,9 @@ install/migration:
 	$(SILENT) $(CP) $(SRCROOT)/$(MIGRATION_SRC_DIR)/jabber_data_migrate_2.0-2.2.pl $(OBJROOT)/$(STAGING_DIR)/$(LIBEXEC_DIR)/
 
 install/promotion:
-	@echo "# `date +%Y/%m/%d\ %H:%M:%S` ChatServer: [staging]: ...copying PromotionExtras"
-	$(SILENT) $(MKDIR) -p -m 755 $(OBJROOT)/$(STAGING_DIR)/$(PROMOTION_EXTRAS_DIR)
-	$(SILENT) $(CP) $(SRCROOT)/$(PROMOTION_SRC_DIR)/70-message_server_promotion.sh $(OBJROOT)/$(STAGING_DIR)/$(PROMOTION_EXTRAS_DIR)/
+	@echo "# `date +%Y/%m/%d\ %H:%M:%S` ChatServer: [staging]: ...copying CommonExtras"
+	$(SILENT) $(MKDIR) -p -m 755 $(OBJROOT)/$(STAGING_DIR)/$(COMMON_EXTRAS_DIR)
+	$(SILENT) $(CP) $(SRCROOT)/$(PROMOTION_SRC_DIR)/70-message_server_common_extra.pl $(OBJROOT)/$(STAGING_DIR)/$(COMMON_EXTRAS_DIR)/
 
 install/restore_extras:
 	@echo "# `date +%Y/%m/%d\ %H:%M:%S` ChatServer: [staging]: ...copying RestoreExtras"

@@ -3,7 +3,7 @@
 //  ChatServer/jabber_autobuddy
 //
 //  Created by Steve Peralta on 7/16/08.
-//  Copyright 2008 Apple. All rights reserved.
+//  Copyright 2008-2013 Apple. All rights reserved.
 //
 
 #import "JABDatabaseAction.h"
@@ -37,6 +37,9 @@ const DBActivityLabel DB_ACTIVITY_LABELS[] = {
 	{DBActivityRosterGroupsRowInsert, "INSERT ROSTER-GROUPS"},
 	{DBActivityRosterGroupsRowDelete, "DELETE ROSTER-GROUPS"},
 	{DBActivityMatchedRowUpdate, "UPDATE MATCHED ROWS"},
+	{DBActivityAutobuddyGuidRowSelect, "SELECT AUTOBUDDY-GUIDS"},
+	{DBActivityAutobuddyGuidRowDelete, "DELETE AUTOBUDDY-GUIDS"},
+	{DBActivityAutobuddyGuidRowVerify, "VERIFY AUTOBUDDY-GUIDS"},
 	{DBActivityUnknown, NULL} // END OF TABLE
 };
 

@@ -1,10 +1,13 @@
 #!/usr/bin/perl -w
-# Copyright (c) 2012 Apple Inc. All Rights Reserved.
+# Author:: Apple Inc.
+# Documentation:: Apple Inc.
+# Copyright (c) 2012-2013 Apple Inc. All Rights Reserved.
 #
 # IMPORTANT NOTE: This file is licensed only for use on Apple-branded
 # computers and is subject to the terms and conditions of the Apple Software
 # License Agreement accompanying the package this file is a part of.
 # You may not port this file to another platform without Apple's written consent.
+# License:: All rights reserved.
 #
 # 75_MessageServerRestoreExtra.pl
 # RestoreExtra script for Message Server
@@ -17,7 +20,7 @@ use File::Basename 'dirname';
 use File::Path 'rmtree';
 use XML::Simple;
 
-my $TAR = "/usr/bin/gnutar";
+my $TAR = "/usr/bin/tar";
 my $MKDIR = "/bin/mkdir";
 my $MKTEMP_PATH = "/usr/bin/mktemp";
 my $SQLITE = "/usr/bin/sqlite3";

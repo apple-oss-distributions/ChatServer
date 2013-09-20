@@ -1,5 +1,5 @@
---- /tmp/jabberd-2.2.17/sm/Makefile.in	2012-08-26 04:59:55.000000000 -0700
-+++ ./jabberd2/sm/Makefile.in	2012-08-28 18:49:00.000000000 -0700
+--- jabberd-2.2.17/sm/Makefile.in	2012-08-26 04:59:55.000000000 -0700
++++ jabberd/sm/Makefile.in	2013-06-17 15:50:10.000000000 -0700
 @@ -20,7 +20,7 @@
  VPATH = @srcdir@
  pkgdatadir = $(datadir)/@PACKAGE@
@@ -9,3 +9,70 @@
  pkglibexecdir = $(libexecdir)/@PACKAGE@
  am__cd = CDPATH="$${ZSH_VERSION+.}$(PATH_SEPARATOR)" && cd
  install_sh_DATA = $(install_sh) -c -m 644
+@@ -100,6 +100,13 @@
+ mod_announce_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
+ 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
+ 	$(mod_announce_la_LDFLAGS) $(LDFLAGS) -o $@
++@USE_LIBSUBST_TRUE@mod_autobuddy_la_DEPENDENCIES =  \
++@USE_LIBSUBST_TRUE@	$(top_builddir)/subst/libsubst.la
++am_mod_autobuddy_la_OBJECTS = mod_autobuddy.lo
++mod_autobuddy_la_OBJECTS = $(am_mod_autobuddy_la_OBJECTS)
++mod_autobuddy_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
++	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
++	$(mod_autobuddy_la_LDFLAGS) $(LDFLAGS) -o $@
+ @USE_LIBSUBST_TRUE@mod_deliver_la_DEPENDENCIES =  \
+ @USE_LIBSUBST_TRUE@	$(top_builddir)/subst/libsubst.la
+ am_mod_deliver_la_OBJECTS = mod_deliver.lo
+@@ -273,7 +280,7 @@
+ 	--mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) \
+ 	$(LDFLAGS) -o $@
+ SOURCES = $(mod_active_la_SOURCES) $(mod_amp_la_SOURCES) \
+-	$(mod_announce_la_SOURCES) $(mod_deliver_la_SOURCES) \
++	$(mod_announce_la_SOURCES) $(mod_autobuddy_la_SOURCES) $(mod_deliver_la_SOURCES) \
+ 	$(mod_disco_la_SOURCES) $(mod_echo_la_SOURCES) \
+ 	$(mod_help_la_SOURCES) $(mod_iq_last_la_SOURCES) \
+ 	$(mod_iq_ping_la_SOURCES) $(mod_iq_private_la_SOURCES) \
+@@ -286,7 +293,7 @@
+ 	$(mod_vacation_la_SOURCES) $(mod_validate_la_SOURCES) \
+ 	$(sm_SOURCES)
+ DIST_SOURCES = $(mod_active_la_SOURCES) $(mod_amp_la_SOURCES) \
+-	$(mod_announce_la_SOURCES) $(mod_deliver_la_SOURCES) \
++	$(mod_announce_la_SOURCES) $(mod_autobuddy_la_SOURCES) $(mod_deliver_la_SOURCES) \
+ 	$(mod_disco_la_SOURCES) $(mod_echo_la_SOURCES) \
+ 	$(mod_help_la_SOURCES) $(mod_iq_last_la_SOURCES) \
+ 	$(mod_iq_ping_la_SOURCES) $(mod_iq_private_la_SOURCES) \
+@@ -439,6 +446,7 @@
+ pkglib_LTLIBRARIES = mod_active.la \
+                   mod_announce.la \
+                   mod_amp.la \
++                  mod_autobuddy.la \
+                   mod_deliver.la \
+                   mod_disco.la \
+                   mod_echo.la \
+@@ -487,6 +495,9 @@
+ mod_amp_la_SOURCES = mod_amp.c
+ mod_amp_la_LDFLAGS = -module -export-dynamic
+ @USE_LIBSUBST_TRUE@mod_amp_la_LIBADD = $(top_builddir)/subst/libsubst.la
++mod_autobuddy_la_SOURCES = mod_autobuddy.c
++mod_autobuddy_la_LDFLAGS = -module -export-dynamic -framework OpenDirectory -framework CoreFoundation
++@USE_LIBSUBST_TRUE@mod_autobuddy_la_LIBADD = $(top_builddir)/subst/libsubst.la
+ mod_deliver_la_SOURCES = mod_deliver.c
+ mod_deliver_la_LDFLAGS = -module -export-dynamic
+ @USE_LIBSUBST_TRUE@mod_deliver_la_LIBADD = $(top_builddir)/subst/libsubst.la
+@@ -621,6 +632,8 @@
+ 	$(mod_amp_la_LINK) -rpath $(pkglibdir) $(mod_amp_la_OBJECTS) $(mod_amp_la_LIBADD) $(LIBS)
+ mod_announce.la: $(mod_announce_la_OBJECTS) $(mod_announce_la_DEPENDENCIES) $(EXTRA_mod_announce_la_DEPENDENCIES) 
+ 	$(mod_announce_la_LINK) -rpath $(pkglibdir) $(mod_announce_la_OBJECTS) $(mod_announce_la_LIBADD) $(LIBS)
++mod_autobuddy.la: $(mod_autobuddy_la_OBJECTS) $(mod_autobuddy_la_DEPENDENCIES) $(EXTRA_mod_autobuddy_la_DEPENDENCIES)
++	$(mod_autobuddy_la_LINK) -rpath $(pkglibdir) $(mod_autobuddy_la_OBJECTS) $(mod_autobuddy_la_LIBADD) $(LIBS)
+ mod_deliver.la: $(mod_deliver_la_OBJECTS) $(mod_deliver_la_DEPENDENCIES) $(EXTRA_mod_deliver_la_DEPENDENCIES) 
+ 	$(mod_deliver_la_LINK) -rpath $(pkglibdir) $(mod_deliver_la_OBJECTS) $(mod_deliver_la_LIBADD) $(LIBS)
+ mod_disco.la: $(mod_disco_la_OBJECTS) $(mod_disco_la_DEPENDENCIES) $(EXTRA_mod_disco_la_DEPENDENCIES) 
+@@ -719,6 +732,7 @@
+ @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mod_active.Plo@am__quote@
+ @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mod_amp.Plo@am__quote@
+ @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mod_announce.Plo@am__quote@
++@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mod_autobuddy.Plo@am__quote@
+ @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mod_deliver.Plo@am__quote@
+ @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mod_disco.Plo@am__quote@
+ @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mod_echo.Plo@am__quote@

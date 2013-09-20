@@ -3,7 +3,7 @@
 //  ChatServer/jabber_autobuddy
 //
 //  Created by Steve Peralta on 8/8/08.
-//  Copyright 2008 Apple. All rights reserved.
+//  Copyright 2008-2013 Apple. All rights reserved.
 //
 
 #import "JABDatabase.h"
@@ -15,11 +15,14 @@
 
 #define JABBER_DB_PATH_DEFAULT @"/Library/Server/Messages/Data/sqlite/jabberd2.db"
 #define JABBER_DB_FILENAME_DEFAULT @"jabberd2.db"
-#define SRVRMGR_JABBER_PREFS_PATH @"/Library/Preferences/com.apple.messageserver.plist"
+#define SRVRMGR_JABBER_PREFS_PATH @"/Library/Server/Messages/Config/com.apple.messageserver.plist"
 #define SMJ_SETTINGSKEY_JABBERD_DB_PATH @"jabberdDatabasePath"
 
 #define QRY_SEL_OWNER_FROM_ACTIVE @"select \"collection-owner\" from active where \"collection-owner\" = \"%@\""
 #define QRY_INS_OWNER_INTO_ACTIVE @"insert into active (\"collection-owner\", \"time\") values (\"%@\", \"%d\")"
+#define QRY_INS_GUID_INTO_AUTOBUDDY_GUIDS @"insert into \"autobuddy-guids\" (\"guid\") values (\"%@\")"
+#define QRY_SEL_GUID_FROM_AUTOBUDDY_GUIDS_MATCHING_GUID @"select \"guid\" from \"autobuddy-guids\" where \"guid\" = \"%@\""
+#define QRY_DEL_GUID_FROM_AUTOBUDDY_GUIDS_MATCHING_GUID @"delete from \"autobuddy-guids\" where \"guid\" = \"%@\""
 
 #define QRY_INS_OWNER_INTO_VCARD @"insert into vcard (\"collection-owner\", \"fn\", \"nickname\", \"url\", \"tel\", \"email\", \"jabberid\", \"mailer\", \"title\",\"role\", \"bday\", \"tz\", \"n-family\", \"n-given\", \"n-middle\", \"n-prefix\", \"n-suffix\", \"adr-street\", \"adr-extadd\", \"adr-pobox\", \"adr-locality\", \"adr-region\", \"adr-pcode\", \"adr-country\", \"geo-lat\", \"geo-lon\", \"org-orgname\", \"org-orgunit\", \"agent-extval\", \"sort-string\", \"desc\", \"note\", \"uid\", \"photo-type\", \"photo-binval\", \"photo-extval\", \"logo-type\", \"logo-binval\", \"logo-extval\", \"sound-phonetic\", \"sound-binval\", \"sound-extval\", \"key-type\", \"key-cred\", \"rev\") values (\"%@\", NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL)"
 
@@ -270,6 +273,86 @@ static int DBBusyCallback(void *context, int count)
 #endif
 	
 	[_dbQuery finalizeStatement];
+}
+
+//------------------------------------------------------------------------------
+- (void) insertAutobuddyGroupGuidForGuid: (NSString *) guid
+                                   source: (const char *) source line: (int) line
+{
+	self.dbResult = SQLITE_OK;
+	
+	[_dbQuery setQueryText: [NSString stringWithFormat:
+							 QRY_INS_GUID_INTO_AUTOBUDDY_GUIDS,
+							 guid]];
+	if (![_dbQuery startStatementForSource: source  line: line])
+		return; // query creation failed -- abort
+	
+	[_dbQuery stepStatement];
+	[self checkQueryStatus: _dbQuery source: source line: line];
+#ifdef DEBUG
+	if (SQLITE_ERROR != _dbResult)
+		[_dbAction recordActivity: DBActivityActiveRowInsert];
+#endif
+	
+	[_dbQuery finalizeStatement];
+}
+
+//------------------------------------------------------------------------------
+- (void) deleteAutobuddyGroupGuidForGuid: (NSString *) guid
+								  source: (const char *) source line: (int) line
+{
+	self.dbResult = SQLITE_OK;
+	
+	[_dbQuery setQueryText: [NSString stringWithFormat:
+							 QRY_DEL_GUID_FROM_AUTOBUDDY_GUIDS_MATCHING_GUID,
+							 guid]];
+	if (![_dbQuery startStatementForSource: source  line: line])
+		return; // query creation failed -- abort
+	
+	[_dbQuery stepStatement];
+	[self checkQueryStatus: _dbQuery source: source line: line];
+#ifdef DEBUG
+	if (SQLITE_ERROR != _dbResult)
+		[_dbAction recordActivity: DBActivityActiveRowDelete];
+#endif
+	
+	[_dbQuery finalizeStatement];
+}
+
+//------------------------------------------------------------------------------
+- (BOOL) verifyAutobuddyGuidForGuid: (NSString *) guid
+								source: (const char *) source line: (int) line
+{
+	self.dbResult = SQLITE_OK;
+	
+	BOOL bExists = NO;
+	
+	[_dbQuery setQueryText: [NSString stringWithFormat:
+							 QRY_SEL_GUID_FROM_AUTOBUDDY_GUIDS_MATCHING_GUID,
+							 guid]];
+	if (![_dbQuery startStatementForSource: source  line: line])
+ 		return NO; // query creation failed -- abort
+	[_dbQuery stepStatement]; // execute query
+	self.dbResult = [_dbQuery queryResult];
+	switch (_dbResult) {
+		case SQLITE_ROW:
+			bExists = YES;
+			break;
+		case SQLITE_DONE:
+		case SQLITE_OK:
+			break;
+		default:
+			[_dbAction logUnknownQueryStatusErrorForSource: source line: line];
+			self.dbResult = SQLITE_ERROR;
+	} // switch
+	[_dbQuery finalizeStatement];
+	
+#ifdef DEBUG
+	if (SQLITE_ERROR != _dbResult)
+		[_dbAction recordActivity: DBActivityAutobuddyGuidRowVerify];
+#endif
+	
+	return bExists;
 }
 
 #pragma mark -

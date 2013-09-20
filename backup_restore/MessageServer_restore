@@ -1,16 +1,19 @@
 #!/usr/bin/perl 
-# Copyright (c) 2012 Apple Inc. All Rights Reserved.
+# Author:: Apple Inc.
+# Documentation:: Apple Inc.
+# Copyright (c) 2012-2013 Apple Inc. All Rights Reserved.
 #
 # IMPORTANT NOTE: This file is licensed only for use on Apple-branded
 # computers and is subject to the terms and conditions of the Apple Software
 # License Agreement accompanying the package this file is a part of.
 # You may not port this file to another platform without Apple's written consent.
+# License:: All rights reserved.
 
 #################################   Constants  #################################
 $PBUDDY = "/usr/libexec/PlistBuddy";
 $SQLITE = "/usr/bin/sqlite3";
 $SERVER_ADMIN="/usr/sbin/serveradmin";
-$TAR = "/usr/bin/gnutar";
+$TAR = "/usr/bin/tar";
 $SBS_CONF = "/Applications/Server.app/Contents/ServerRoot/private/etc/server_backup";
 $MKTEMP_PATH = "/usr/bin/mktemp";
 $ServiceConf = "75-MessageServer.plist";
@@ -179,9 +182,9 @@ sub Restore()
             }
         }
 		if ($VERBOSE) {
-			$cmd = "$TAR --ignore-failed-read -cvzf /Library/Server/Messages/Config/jabberd/MessageServer_settings_before_restore.tar.gz";
+			$cmd = "$TAR -cvzf /Library/Server/Messages/Config/jabberd/MessageServer_settings_before_restore.tar.gz";
 		} else {
-			$cmd = "$TAR --ignore-failed-read -czf /Library/Server/Messages/Config/jabberd/MessageServer_settings_before_restore.tar.gz";
+			$cmd = "$TAR -czf /Library/Server/Messages/Config/jabberd/MessageServer_settings_before_restore.tar.gz";
 		}
 
 		foreach my $configFile (@configurationFiles) {

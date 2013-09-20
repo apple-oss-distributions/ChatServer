@@ -1,0 +1,264 @@
+--- jabberd-2.2.17/sm/mod_autobuddy.c	1969-12-31 16:00:00.000000000 -0800
++++ jabberd/sm/mod_autobuddy.c	2013-06-20 01:21:58.000000000 -0700
+@@ -0,0 +1,261 @@
++/*
++
++ */
++
++/** @file sm/mod_autobuddy.c
++  * @brief Apple: Server code for jabber_autobuddy functionality
++  * @author Apple Inc.
++  * $Date: 2013/07/01 $
++  * $Revision: 1.0 $
++  */
++
++#include "sm.h"
++#include <OpenDirectory/OpenDirectory.h>
++#include <OpenDirectory/OpenDirectoryPriv.h>
++#include <DirectoryService/DirectoryService.h>
++#include <membership.h>
++#include <membershipPriv.h>
++
++#define CF_SAFE_RELEASE(cfobj) \
++do { if ((cfobj) != NULL) CFRelease((cfobj)); cfobj = NULL; } while (0)
++
++static void _log_cferror(char *message, CFErrorRef error) {
++    if (error == NULL) {
++        log_debug(ZONE, "%s", message);
++    }
++    else {
++        char buf[256];
++        CFStringRef errorString = CFErrorCopyFailureReason(error);
++        CFStringGetCString(errorString, buf, sizeof(buf), kCFStringEncodingUTF8);
++        log_debug(ZONE, "%s: %s", message, buf);
++    }
++}
++
++static int _autobuddy_user_load(mod_instance_t mi, user_t user) {
++    os_t os;
++    os_object_t o;
++	uuid_t user_uuid;
++    char group_name[2048];
++    int num_active_users = 0;
++    int num_groups_for_user = 0;
++    int i;
++
++    // Get GUIDs of groups that user may be in
++    if (storage_get_custom_sql(user->sm->st, "SELECT \"guid\" from \"autobuddy-guids\"", &os, NULL) != st_SUCCESS) {
++        // Error, or no items in table
++        return 0;
++    }
++    if (os_count(os) == 0) {
++        return 0;
++    }
++    if (0 != mbr_user_name_to_uuid(user->jid->node, user_uuid)) {
++        log_debug(ZONE, "Could not resolve uuid for username: %s", user->jid->node);
++        return 0;
++    }
++    char group_guids_for_user[os_count(os)][256];
++    if (os_iter_first(os)) {
++        do {
++            char *guid;
++            o = os_iter_object(os);
++            if (! os_object_get_str(os, o, "guid", &guid)) {
++                log_debug(ZONE, "object with missing jid, skipping");
++                continue;
++            }
++            //log_debug(ZONE, "Found guid: %s", guid);
++            if (guid != NULL) {
++                uuid_t group_uuid;
++                uuid_parse(guid, group_uuid);
++
++				int is_member;
++				if (0 != mbr_check_membership(user_uuid, group_uuid, &is_member) || is_member == 0)
++					continue;
++                // User is a member. Remember this group.
++                num_groups_for_user++;
++                strncpy(group_guids_for_user[num_groups_for_user-1], guid, 256);
++			}
++        } while (os_iter_next(os));
++    }
++
++    if (num_groups_for_user == 0) {
++        // No groups that user is a member of.
++        return 0;
++    }
++
++    os_free(os);
++
++    // Build a list of active users
++    if (storage_get_custom_sql(user->sm->st, "SELECT \"collection-owner\" from active", &os, NULL) != st_SUCCESS) {
++        // Error, or no items in table
++        return 0;
++    }
++    if (os_count(os) == 0) {
++        // No active users
++        return 0;
++    }
++
++    jid_t active_jids[os_count(os)];
++    if (os_iter_first(os)) {
++        char *owner_jid;
++        do {
++            o = os_iter_object(os);
++            if (! os_object_get_str(os, o, "collection-owner", &owner_jid)) {
++                log_debug(ZONE, "object with missing jid, skipping");
++                continue;
++            }
++            log_debug(ZONE, "Found jid: %s", owner_jid);
++            jid_t jidt = jid_new(owner_jid, strlen(owner_jid));
++            if (jidt == NULL || jidt->node == NULL) {
++                log_debug(ZONE, "Error getting JID from returned string when reading active table");
++                continue;
++            }
++            num_active_users++;
++            active_jids[num_active_users-1] = jidt;
++        } while (os_iter_next(os));
++    }
++
++//    for (i = 0; i < num_active_users; i++) {
++//        log_debug(ZONE, "Found jid: %s\n", jid_user(active_jids[i]));
++//    }
++    
++
++    os_free(os);
++
++    int iter_group;
++    for (iter_group = 0; iter_group < num_groups_for_user; iter_group++) {
++        CFErrorRef cfError = NULL;
++        ODNodeRef gSearchNode = ODNodeCreateWithNodeType(kCFAllocatorDefault, kODSessionDefault,
++                                                            kODNodeTypeAuthentication, &cfError);
++        CFStringRef cfGuid = CFStringCreateWithFormat(kCFAllocatorDefault, NULL, CFSTR("%s"), group_guids_for_user[iter_group]);
++        ODQueryRef cfQueryRef = ODQueryCreateWithNode(kCFAllocatorDefault,
++                                                gSearchNode,
++                                                kODRecordTypeGroups,
++                                                kODAttributeTypeGUID,
++                                                kODMatchEqualTo,
++                                                cfGuid,
++                                                NULL,
++                                                0, &cfError);
++        if (cfQueryRef == NULL || cfError != NULL) {
++            _log_cferror("ERROR: ODQueryCreateWithNode failed", cfError);
++            CF_SAFE_RELEASE(cfError);
++            CF_SAFE_RELEASE(gSearchNode);
++            CF_SAFE_RELEASE(cfGuid);
++            CF_SAFE_RELEASE(cfQueryRef);
++            break;
++        }
++        CFArrayRef cfGroupRecords = ODQueryCopyResults(cfQueryRef, false, &cfError);
++        if (cfGroupRecords == NULL || cfError != NULL) {
++            _log_cferror("ERROR: ODQueryCopyResults failed", cfError);
++            CF_SAFE_RELEASE(cfError);
++            CF_SAFE_RELEASE(gSearchNode);
++            CF_SAFE_RELEASE(cfGuid);
++            CF_SAFE_RELEASE(cfQueryRef);
++            CF_SAFE_RELEASE(cfGroupRecords);
++            break;
++        }
++        else if (CFArrayGetCount(cfGroupRecords) == 0) {
++            log_debug(ZONE, "Unable to find group record");
++            CF_SAFE_RELEASE(cfError);
++            CF_SAFE_RELEASE(gSearchNode);
++            CF_SAFE_RELEASE(cfGuid);
++            CF_SAFE_RELEASE(cfQueryRef);
++            CF_SAFE_RELEASE(cfGroupRecords);
++            break;
++        }
++        ODRecordRef groupRecord = (ODRecordRef)CFArrayGetValueAtIndex(cfGroupRecords, 0);
++        CFArrayRef values = ODRecordCopyValues(groupRecord, kODAttributeTypeFullName, &cfError);
++        CFStringRef value = NULL;
++        if (values != NULL) {
++            value = CFArrayGetValueAtIndex(values, 0);
++        }
++        if (value != NULL) {
++            CFStringGetCString(value, group_name, sizeof(group_name), kCFStringEncodingUTF8);
++            log_debug(ZONE, "Found kODAttributeTypeFullName for group: %s", group_name);
++        }
++        else {
++            values = ODRecordCopyValues(groupRecord, kODAttributeTypeRecordName, &cfError);
++            value = CFArrayGetValueAtIndex(values, 0);
++            CFStringGetCString(value, group_name, sizeof(group_name), kCFStringEncodingUTF8);
++            log_debug(ZONE, "Found kODAttributeTypeRecordName for group: %s", group_name);
++        }
++
++        CF_SAFE_RELEASE(cfError);
++        CF_SAFE_RELEASE(gSearchNode);
++        CF_SAFE_RELEASE(cfGuid);
++        CF_SAFE_RELEASE(cfQueryRef);
++        CF_SAFE_RELEASE(groupRecord);
++        CF_SAFE_RELEASE(cfGroupRecords);
++        CF_SAFE_RELEASE(value);
++        CF_SAFE_RELEASE(values);
++
++        //log_debug(ZONE, "Iterating over %d JIDs", num_active_users);
++        int iter_user;
++        for (iter_user = 0; iter_user < num_active_users; iter_user++) {
++            // For each user in list, set roster-items and roster-groups to authorize every other
++            // user in the list, if they are a member of the given OD group.
++            if (0 != mbr_user_name_to_uuid(active_jids[iter_user]->node, user_uuid))
++                continue;
++
++            uuid_t group_uuid;
++            uuid_parse(group_guids_for_user[iter_group], group_uuid);
++
++            int is_member;
++            if (0 != mbr_check_membership(user_uuid, group_uuid, &is_member) || is_member == 0)
++                continue;
++
++            if (strncmp(active_jids[iter_user]->node, user->jid->node, 1023) == 0) {
++                // Found our own username
++                log_debug(ZONE, "Found our own name, continuing");
++                continue;
++            }
++
++            os_t osa;
++            os_object_t oa;
++            char filter[4096];
++
++            log_debug(ZONE, "saving roster item %s for %s", jid_full(active_jids[iter_user]), jid_user(user->jid));
++
++            osa = os_new();
++            oa = os_object_new(osa);
++
++            int i_false = 0;
++            int i_true = 1;
++            os_object_put(oa, "jid", jid_full(active_jids[iter_user]), os_type_STRING);
++            os_object_put(oa, "to", &i_true, os_type_BOOLEAN);
++            os_object_put(oa, "from", &i_true, os_type_BOOLEAN);
++            os_object_put(oa, "ask", &i_false, os_type_INTEGER);
++
++            snprintf(filter, 4096, "(jid=%zu:%s)", strlen(jid_full(active_jids[iter_user])), jid_full(active_jids[iter_user]));
++
++            log_debug(ZONE, "Adding roster-item, filter is %s", filter);
++            storage_replace(user->sm->st, "roster-items", jid_user(user->jid), filter, osa);
++
++            os_free(osa);
++            osa = os_new();
++            oa = os_object_new(osa);
++
++            os_object_put(oa, "jid", jid_full(active_jids[iter_user]), os_type_STRING);
++            os_object_put(oa, "group", group_name, os_type_STRING);
++
++            log_debug(ZONE, "Adding roster-group, filter is %s", filter);
++            storage_replace(user->sm->st, "roster-groups", jid_user(user->jid), filter, osa);
++
++            os_free(osa);
++        }
++    }
++
++    for (i = 0; i < num_active_users; i++) {
++        jid_free(active_jids[i]);
++    }
++
++    return 0;
++}
++
++DLLEXPORT int module_init(mod_instance_t mi, char *arg) {
++    module_t mod = mi->mod;
++
++    if (mod->init) return 0;
++
++    mod->user_load = _autobuddy_user_load;
++
++    return 0;
++}

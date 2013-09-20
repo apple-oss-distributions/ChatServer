@@ -1,0 +1,23 @@
+--- jabberd-2.2.17/sm/Makefile.am	2011-10-30 11:46:36.000000000 -0700
++++ jabberd/sm/Makefile.am	2013-06-17 15:11:58.000000000 -0700
+@@ -5,6 +5,7 @@
+ pkglib_LTLIBRARIES = mod_active.la \
+                   mod_announce.la \
+                   mod_amp.la \
++                  mod_autobuddy.la \
+                   mod_deliver.la \
+                   mod_disco.la \
+                   mod_echo.la \
+@@ -68,6 +69,12 @@
+ mod_amp_la_LIBADD = $(top_builddir)/subst/libsubst.la
+ endif
+ 
++mod_autobuddy_la_SOURCES = mod_autobuddy.c
++mod_autobuddy_la_LDFLAGS = -module -export-dynamic
++if USE_LIBSUBST
++mod_autobuddy_la_LIBADD = $(top_builddir)/subst/libsubst.la
++endif
++
+ mod_deliver_la_SOURCES = mod_deliver.c
+ mod_deliver_la_LDFLAGS = -module -export-dynamic
+ if USE_LIBSUBST

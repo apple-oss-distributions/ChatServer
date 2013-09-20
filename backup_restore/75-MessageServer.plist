@@ -58,8 +58,8 @@
 	<array>
 		<string>/Library/Server/Messages/Config/jabberd/*.xml</string>
 		<string>/Library/Server/Messages/Config/jabberd/jabberd.cfg</string>
-		<string>/Library/Preferences/com.apple.messageserver.plist</string>
-		<string>/Library/Preferences/com.apple.Proxy65.plist</string>
+		<string>/Library/Server/Messages/Config/com.apple.messageserver.plist</string>
+		<string>/Library/Server/Messages/Config/com.apple.Proxy65.plist</string>
 		<string>/Library/Server/Messages/Config/Rooms.plist</string>
 	</array>
 	

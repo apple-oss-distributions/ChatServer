@@ -1,15 +1,15 @@
 #!/bin/sh
-
-# initialize_message_server.sh
+# Author:: Apple Inc.
+# Documentation:: Apple Inc.
+# Copyright (c) 2012-2013 Apple Inc. All Rights Reserved.
+#
 # ChatServer
-
-# Copyright (c) 2012 Apple Inc. All Rights Reserved.
+# initialize_message_server.sh
 #
 # IMPORTANT NOTE: This file is licensed only for use on Apple-branded
 # computers and is subject to the terms and conditions of the Apple Software
 # License Agreement accompanying the package this file is a part of.
 # You may not port this file to another platform without Apple's written consent.
-
 #
 # Copies the default jabberd and Rooms config files into /Library/Server during promotion or migration
 #
@@ -55,4 +55,5 @@ echo "Copying Message Server configuration files into $ConfigDir..."
 /usr/sbin/chown _jabber:_jabber "$ConfigDir/Rooms.plist"
 /bin/chmod 660 "$ConfigDir/Rooms.plist"
 /bin/rm -f /Library/Preferences/com.apple.Proxy65.plist
+/bin/rm -f /Library/Server/Messages/Config/com.apple.Proxy65.plist
 echo "Finished."

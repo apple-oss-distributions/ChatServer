@@ -54,7 +54,10 @@ typedef struct sqlite3 sqlite3;
 
 - (BOOL) verifyActiveJid: (NSString *) aJid expectedResult: (BOOL) expected;
 - (void) insertActiveItemForOwner: (NSString *) ownerJid source: (const char *) source line: (int) line;
-
+- (void) insertAutobuddyGroupGuidForGuid: (NSString *) guid source: (const char *) source line: (int) line;
+- (BOOL) verifyAutobuddyGuidForGuid: (NSString *) guid  source: (const char *) source line: (int) line;
+- (void) deleteAutobuddyGroupGuidForGuid: (NSString *) guid
+								  source: (const char *) source line: (int) line;
 - (void) insertVcardItemForOwner: (NSString *) ownerJid source: (const char *) source line: (int) line;
 
 - (BOOL) verifyRosterItemForOwner: (NSString *) ownerJid andBuddy: (NSString *) ownerJid;

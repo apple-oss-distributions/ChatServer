@@ -1,0 +1,108 @@
+--- jabberd-2.2.17/storage/storage_sqlite.c	2011-10-30 11:46:36.000000000 -0700
++++ jabberd/storage/storage_sqlite.c	2013-06-19 13:18:39.000000000 -0700
+@@ -666,6 +666,97 @@
+     return st_SUCCESS;
+ }
+ 
++static st_ret_t _st_sqlite_get_custom_sql (st_driver_t drv, const char *request, os_t *os) {
++    drvdata_t data = (drvdata_t) drv->private;
++    int i;
++    unsigned int num_rows = 0;
++    os_object_t o;
++    const char *val;
++    os_type_t ot;
++    int ival;
++    
++    sqlite3_stmt *stmt;
++    int result;
++    
++    if (request == NULL) {
++        return st_NOTFOUND;
++    }
++
++    log_debug (ZONE, "got prepared sql: %s", request);
++
++    result = sqlite3_prepare (data->db, request, strlen(request), &stmt, NULL);
++
++    if (result != SQLITE_OK) {
++        return st_FAILED;
++    }
++
++    *os = os_new ();
++    
++    do {
++
++        unsigned int num_cols;
++
++        result = sqlite3_step (stmt);
++
++        if (result != SQLITE_ROW) {
++            continue;
++        }
++
++        o = os_object_new (*os);
++        num_cols = sqlite3_data_count (stmt);
++
++        for (i = 0; i < num_cols; i++) {
++
++            const char *colname;
++            int coltype;
++
++            colname = sqlite3_column_name (stmt, i);
++            coltype = sqlite3_column_type (stmt, i);
++
++            if (coltype == SQLITE_NULL) {
++                log_debug (ZONE, "coldata is NULL");
++                continue;
++            }
++
++            if (coltype == SQLITE_INTEGER) {
++                if (!strcmp (sqlite3_column_decltype (stmt, i), "BOOL")) {
++                    ot = os_type_BOOLEAN;
++                } else {
++                    ot = os_type_INTEGER;
++                }
++
++                ival = sqlite3_column_int (stmt, i);
++                os_object_put (o, colname, &ival, ot);
++
++            } else if (coltype == SQLITE3_TEXT) {
++                ot = os_type_STRING;
++
++                val = sqlite3_column_text (stmt, i);
++                os_object_put (o, colname, val, ot);
++
++            } else {
++                log_write (drv->st->log,
++                           LOG_NOTICE,
++                           "sqlite: unknown field: %s:%d",
++                           colname, coltype);
++            }
++        }
++
++        num_rows++;
++
++    } while (result == SQLITE_ROW);
++
++    sqlite3_finalize (stmt);
++
++    if (num_rows == 0) {
++        os_free(*os);
++        *os = NULL;
++        return st_NOTFOUND;
++    }
++
++    return st_SUCCESS;
++}
++
+ static void _st_sqlite_free (st_driver_t drv) {
+ 
+     drvdata_t data = (drvdata_t) drv->private;
+@@ -726,6 +817,7 @@
+     drv->get = _st_sqlite_get;
+     drv->delete = _st_sqlite_delete;
+     drv->replace = _st_sqlite_replace;
++    drv->get_custom_sql = _st_sqlite_get_custom_sql;
+     drv->free = _st_sqlite_free;
+ 
+     return st_SUCCESS;

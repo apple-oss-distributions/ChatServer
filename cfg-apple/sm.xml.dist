@@ -479,6 +479,7 @@
          before a session is created). -->
     <chain id='user-load'>
       <module>active</module>           <!-- get active status -->
+      <module>autobuddy</module>        <!-- Apple: autobuddy feature (NOTE: must happen before roster) -->
       <module>roster</module>           <!-- load the roster and trust list -->
       <module>roster-publish</module>   <!-- load the published roster -->
       <module>privacy</module>          <!-- load privacy lists -->

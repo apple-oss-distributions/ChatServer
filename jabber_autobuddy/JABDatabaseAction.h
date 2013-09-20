@@ -3,7 +3,7 @@
 //  ChatServer/jabber_autobuddy
 //
 //  Created by Steve Peralta on 7/16/08.
-//  Copyright 2008 Apple. All rights reserved.
+//  Copyright 2008-2013 Apple. All rights reserved.
 //
 
 #import "JABAction.h"
@@ -23,6 +23,9 @@ enum {
 	DBActivityRosterGroupsRowInsert,
 	DBActivityRosterGroupsRowDelete,
 	DBActivityMatchedRowUpdate,
+	DBActivityAutobuddyGuidRowSelect,
+	DBActivityAutobuddyGuidRowDelete,
+	DBActivityAutobuddyGuidRowVerify,
 	DBActivityNumTypes // must be last item in enum
 } DatabaseActivityType;
 

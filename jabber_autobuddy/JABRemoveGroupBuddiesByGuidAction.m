@@ -8,6 +8,7 @@
 #import "JABRemoveGroupBuddiesByGuidAction.h"
 #import "JABDatabaseQuery.h"
 #include <sys/param.h>
+#include <membershipPriv.h>
 
 @implementation JABRemoveGroupBuddiesByGuidAction
 
@@ -116,6 +117,10 @@
 	} // while ownerJid
 
 	[_activeQuery1 finalizeStatement];
+	
+	[_database deleteAutobuddyGroupGuidForGuid: _groupGuid
+										source: __PRETTY_FUNCTION__
+										  line: __LINE__];
 }
 
 @end
